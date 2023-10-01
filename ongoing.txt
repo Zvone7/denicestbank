@@ -1,0 +1,15 @@
+create ava tenant and devops project
+create github repo
+
+figure out database model
+create api
+app registration
+azure ad auth&auth
+xunit for unit tests
+monitor for logs (dashboards, alerts)
+azure resources:
+- app service plan (cicd + bicep) - add owasp task
+- keyvault (cicd + bicep)
+- sql database (cicd + bicep)
+- azure function for fetching latest states of transactions, http trigger
+- azure function that triggers once an hour to add transactions, cron job
