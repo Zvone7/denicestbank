@@ -1,0 +1,15 @@
+variables:
+  envCode: d
+
+  logAnalyticsWorkspaceName: dnb-monitor-d-log-01
+  resourceGroupName: dnb-d
+  envSubscriptionId: 2cd9f888-d0d9-4c96-85ef-cdc1a420ebcd
+  keyVaultName: d-kv-01
+
+  #sql database
+  serverName: dnb-zeserver-d-01
+  sqldatabasename: dnb-d-db-01
+  dbSkuName: Basic
+  dbSkuTier: Basic
+  dbSkuCapacity: 5
+  diagnosticLogRetentionPeriod: 30
