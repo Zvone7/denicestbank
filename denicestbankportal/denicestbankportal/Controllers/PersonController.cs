@@ -6,13 +6,18 @@ namespace denicestbankportal.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PersonController : ControllerBase
+public class PersonController : Controller
 {
     private readonly PersonService _personService;
 
     public PersonController(PersonService personService)
     {
         _personService = personService ?? throw new ArgumentNullException(nameof(personService));
+    }
+    
+    public IActionResult Index()
+    {
+        return View();
     }
 
     [HttpGet]

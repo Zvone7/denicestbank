@@ -75,6 +75,37 @@ public class LoanProvider
         };
     }
 
+
+    public async Task<IEnumerable<LoanWithPersons>> GetLoansByPersonIdAsync(Guid personId)
+    {
+        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        dbConnection.Open();
+
+        var loanIds = await dbConnection.QueryAsync<Guid>(
+            "SELECT DISTINCT(LoanId) FROM PersonToLoan WHERE PersonId = @PersonId",
+            new { PersonId = personId }
+        );
+        var loans = new List<LoanWithPersons>();
+        foreach (var loanId in loanIds)
+        {
+            var loan = await dbConnection.QueryFirstOrDefaultAsync<Loan>(
+                "SELECT * FROM Loan WHERE Id = @Id",
+                new { Id = loanId }
+            );
+            if (loan != null)
+            {
+                loans.Add(
+                    new LoanWithPersons()
+                    {
+                        Loan = loan,
+                        Persons = null
+                    });
+            }
+        }
+
+        return loans;
+    }
+
     public async Task<Loan> CreateLoanAsync(Loan loan, IEnumerable<Guid> personIds)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
@@ -84,16 +115,16 @@ public class LoanProvider
         {
             // Insert the loan into the database
             await dbConnection.ExecuteAsync(
-                "INSERT INTO Loan (LoanBaseAmount, StartDatetimeUtc, Interest, LoanTotalAmount, IsApproved) " +
-                "VALUES (@LoanBaseAmount, @StartDatetimeUtc, @Interest, @LoanTotalAmount, @IsApproved)",
+                "INSERT INTO Loan (LoanBaseAmount, DurationInDays, StartDatetimeUtc, Interest, LoanTotalAmount, IsApproved) " +
+                "VALUES (@LoanBaseAmount, @DurationInDays, @StartDatetimeUtc, @Interest, @LoanTotalAmount, @IsApproved)",
                 loan,
                 transaction
             );
 
             // Retrieve the newly created loan from the database
             var createdLoan = await dbConnection.QueryFirstOrDefaultAsync<Loan>(
-                "SELECT TOP 1 * FROM Loan",
-                transaction: transaction// Add this line to initialize the transaction property of the command
+                "SELECT TOP 1 * FROM Loan ORDER BY StartDatetimeUtc DESC",
+                transaction: transaction
             );
 
             // Insert the person-to-loan relationships into the database
@@ -119,6 +150,7 @@ public class LoanProvider
         }
     }
 
+
     public async Task<Loan> UpdateLoanAsync(Loan loan)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
@@ -131,6 +163,26 @@ public class LoanProvider
             loan
         );
         return loan;
+    }
+
+    public async Task<Boolean> ApproveLoanAsync(Guid loanId)
+    {
+        try
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString);
+            dbConnection.Open();
+            await dbConnection.ExecuteAsync(
+                "UPDATE Loan SET IsApproved = 1 " +
+                "WHERE Id = @Id",
+                new { Id = loanId }
+            );
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error approving loan with ID {loanId}: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task DeleteLoanAsync(Guid id)

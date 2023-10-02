@@ -6,8 +6,10 @@ create database
 
 todo:
 create api
+    - create app registration
+    - azure aad - passing along user id
+    - automatic - user creation on login?
 create app service
-app registration
 azure ad auth&auth
 xunit for unit tests
 monitor for logs (dashboards, alerts)

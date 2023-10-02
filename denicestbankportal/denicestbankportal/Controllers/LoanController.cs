@@ -1,5 +1,3 @@
-
-using denicestbankportal.Database;
 using denicestbankportal.Logic;
 using denicestbankportal.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +6,7 @@ namespace denicestbankportal.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class LoanController : ControllerBase
+    public class LoanController : Controller
     {
         private readonly LoanService _loanService;
 
@@ -23,6 +21,13 @@ namespace denicestbankportal.Controllers
             var loans = await _loanService.GetAllLoansAsync();
             return Ok(loans);
         }
+        [HttpGet("{id}")]
+        [Route(nameof(GetAllLoansByPersonId))]
+        public async Task<ActionResult<IEnumerable<LoanOverview>>> GetAllLoansByPersonId(Guid personId)
+        {
+            var loans = await _loanService.GetAllLoansByPersonGuidAsync(personId);
+            return Ok(loans);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<LoanOverview>> GetLoan(Guid id)
@@ -34,13 +39,23 @@ namespace denicestbankportal.Controllers
             }
             return Ok(loan);
         }
+        
+        
+        [HttpPut("{id}")]
+        [Route(nameof(ApproveLoan))]
+        public async Task<IActionResult> ApproveLoan(Guid loanId)
+        {
+            var approveResult = await _loanService.ApproveLoanAsync(loanId);
+
+            return Ok(approveResult);
+        }
 
 
         [HttpPost]
         public async Task<ActionResult<Loan>> CreateLoan(LoanCreateObj loanCreateObj)
         {
-            var createdLoan = await _loanService.CreateLoanAsync(loanCreateObj.Loan, loanCreateObj.Guids);
-            return CreatedAtAction(nameof(GetLoan), new { id = loanCreateObj.Loan.Id }, createdLoan);
+            var createdLoan = await _loanService.CreateLoanAsync(loanCreateObj);
+            return CreatedAtAction(nameof(GetLoan), new { id = createdLoan.Id }, createdLoan);
         }
 
         [HttpPut("{id}")]

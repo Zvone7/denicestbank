@@ -37,10 +37,37 @@ public class LoanService
 
         return results;
     }
+    
+    
+    public async Task<IEnumerable<LoanOverview>> GetAllLoansByPersonGuidAsync(Guid personId)
+    {
+        var loansWithPersons = await _loanProvider.GetLoansByPersonIdAsync(personId);
+        var loansLatestStates = (await _transactionProvider_.GetAllLoansLatestStates()).ToList();
+
+        var results = new List<LoanOverview>();
+
+        foreach (var lwp in loansWithPersons)
+        {
+            var lls = loansLatestStates.ToList().FirstOrDefault(x => x.LoanId.Equals(lwp.Loan.Id));
+            results.Add(new LoanOverview(lwp, lls == null ? 0 : (Int32)lls.TotalTransacted));
+        }
+
+        return results;
+    }
 
     public async Task<Loan> UpdateLoanAsync(Loan loan)
     {
         return await _loanProvider.UpdateLoanAsync(loan);
+    }
+    
+    public async Task<Boolean> ApproveLoanAsync(Guid loanId)
+    {
+        var loan = await _loanProvider.GetLoanByIdAsync(loanId);
+        if (loan.Loan != null)
+        {
+            return await _loanProvider.ApproveLoanAsync(loanId);
+        }
+        throw new KeyNotFoundException($"No loan with Id{loanId}");
     }
 
     public async Task DeleteLoanAsync(Guid loanId)
@@ -48,9 +75,12 @@ public class LoanService
         await _loanProvider.DeleteLoanAsync(loanId);
     }
 
-    public async Task<Loan> CreateLoanAsync(Loan loan, IEnumerable<Guid> guids)
+    public async Task<Loan> CreateLoanAsync(LoanCreateObj loanCreateObj)
     {
+        var loanDb = new Loan();
+        loanDb.Init(loanCreateObj.Loan);
+        
         // Add the loan to the provider
-        return await _loanProvider.CreateLoanAsync(loan, guids);
+        return await _loanProvider.CreateLoanAsync(loanDb, loanCreateObj.Guids);
     }
 }
