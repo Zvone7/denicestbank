@@ -30,7 +30,7 @@ stages:
         displayName: 'Use .NET 7.0.x SDK'
         packageType: 'sdk'
         inputs:
-          version: 7.0.x
+          version: 7.x
 
     - task: DotNetCoreCLI@2
       displayName: Install dotnet-ef
