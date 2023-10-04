@@ -26,7 +26,7 @@ builder.Services.AddSingleton<PersonService>();
 builder.Services.AddSingleton<LoanService>();
 builder.Services.AddSingleton<TransactionService>();
 
-AddAzureAuthenticationAndAuthorization();
+// AddAzureAuthenticationAndAuthorization();
 
 var app = builder.Build();
 

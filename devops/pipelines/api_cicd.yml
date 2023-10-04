@@ -105,6 +105,23 @@ stages:
                   KeyVaultName: ${{ variables.keyVaultName }}
                   SecretsFilter: '*'  # You can specify which secrets to fetch here
 
+              - task: AzurePowerShell@5
+                displayName: 'Update secret variables'
+                inputs:
+                  azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+                  ScriptType: 'InlineScript'
+                  Inline: |
+                    Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.connectionStringSecretName }})"
+                  azurePowerShellVersion: 'LatestVersion'
+
+              - task: FileTransform@1
+                displayName: 'Update appsettings.json environment properties'
+                inputs:
+                  folderPath: '$(Pipeline.Workspace)/app/*.zip'
+                  targetFiles: '**/appsettings.json'
+                  fileType: json
+
+
               # - powershell: |
               #     # Convert the secrets to JSON format for app settings
               #     $connectionStrings = @{
