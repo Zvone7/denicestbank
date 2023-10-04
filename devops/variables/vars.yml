@@ -5,6 +5,6 @@ variables:
   envRegionName: swedencentral
 
   sqlUsername: sql_admin
-  dotnetSdkVersion: 7.0
+  dotnetSdkVersion: '7.x'
   portalApiSolution: denicestbankportal
   portalAppName: dnb-portal-d-01
