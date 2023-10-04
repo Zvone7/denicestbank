@@ -2,14 +2,12 @@ using System.Security.Authentication;
 using Azure.Identity;
 using denicestbankportal.Logic;
 using denicestbankportal.Database;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllersWithViews();
 
 // Read the connection string from appsettings.json
 #if DEBUG
@@ -17,9 +15,8 @@ builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, relo
 #endif
 var connectionString = builder.Configuration["ConnectionStrings:DbConnectionString"];
 
-Console.WriteLine("Application started");
+Console.WriteLine("*** Application started");
 
-// Add PersonProvider and PersonService to the container.
 builder.Services.AddSingleton(provider => new PersonProvider(connectionString));
 builder.Services.AddSingleton(provider => new LoanProvider(connectionString));
 builder.Services.AddSingleton(provider => new TransactionProvider(connectionString));
@@ -29,6 +26,8 @@ builder.Services.AddSingleton<LoanService>();
 builder.Services.AddSingleton<TransactionService>();
 
 AddAzureAuthenticationAndAuthorization();
+
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -40,36 +39,34 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "catch-all",
-    pattern: "{controller=Home}/{action=Index}");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+});
 
 app.Run();
 
 
 void AddAzureAuthenticationAndAuthorization()
 {
-    Console.WriteLine("Add Auth&Auth");
+    Console.WriteLine("*** Start Auth&Auth setup");
     var keyVaultName = builder.Configuration["KeyVaultName"];
     try
     {
-        // Add Azure Key Vault configuration
         if (!builder.Environment.IsDevelopment())
             builder.Configuration.AddAzureKeyVault(
                 new Uri($"https://{keyVaultName}.vault.azure.net/"),
                 new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
 
-        builder.Services
-            .AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
-
-        Console.WriteLine("Attempting to load all Aad properties");
-        // Add Authorization using Managed Identity, App Registrations, and App Roles
+        Console.WriteLine("*** Attempting to load all Aad properties");
+        
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
         var domain = builder.Configuration["portal-domain"];
         var instance = builder.Configuration["azure-instance"];
@@ -82,32 +79,41 @@ void AddAzureAuthenticationAndAuthorization()
         tenantId.ThrowIfNullOrWhiteSpace(nameof(tenantId));
         appClientId.ThrowIfNullOrWhiteSpace(nameof(appClientId));
         callbackPath.ThrowIfNullOrWhiteSpace(nameof(callbackPath));
-        Console.WriteLine("All Aad properties loaded");
 
-        if (String.IsNullOrWhiteSpace(instance) ||
-            String.IsNullOrWhiteSpace(tenantId) ||
-            String.IsNullOrWhiteSpace(appClientId))
-            throw new InvalidCredentialException($"Unable to retrieve mandatory fields for Azure Auth - " +
-                                                 $"Instance, TenantId, ClientId cannot be empty");
+        Console.WriteLine("*** All Aad properties loaded");
 
         azureAdSection.GetSection("Instance").Value = instance;
         azureAdSection.GetSection("TenantId").Value = tenantId;
         azureAdSection.GetSection("ClientId").Value = appClientId;
         azureAdSection.GetSection("CallbackPath").Value = callbackPath;
         azureAdSection.GetSection("Domain").Value = domain;
+        
+        
+        // builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
+        builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+        
+        
+        // builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
+        // Configure authentication for calling APIs
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"))
+            .EnableTokenAcquisitionToCallDownstreamApi()
+            .AddInMemoryTokenCaches();
+
+        builder.Services.AddControllersWithViews();
+        
+        
 #if DEBUG
         IdentityModelEventSource.ShowPII = true;
+        IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 #endif
-
-        ///////here
-        builder.Services
-            .AddAuthentication(AzureADDefaults.AuthenticationScheme)
-            .AddAzureAD(options => builder.Configuration.Bind("AzureAd", options));
-        Console.WriteLine("Aad auth initialized.");
+        
+        Console.WriteLine("*** Aad Auth&Auth initialized.");
     }
     catch (Exception e)
     {
-        var message = $"{DateTime.Now}|Exception setting up Azure Authentication: KeyVault {keyVaultName}: {e}";
+        var message = $"Exception setting up Azure Authentication: {e}";
         Console.WriteLine(message);
         System.Diagnostics.Trace.TraceError(message);
     }
