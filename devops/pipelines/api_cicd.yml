@@ -146,3 +146,4 @@ stages:
                   appType: 'webApp'
                   package: '$(Pipeline.Workspace)/app/*.zip'
                   appSettings: '-ENVIRONMENT_NAME ${{ env }}'
+                  deploymentMethod: zipDeploy
