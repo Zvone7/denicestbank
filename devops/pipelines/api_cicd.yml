@@ -51,7 +51,7 @@ stages:
         command: 'publish'
         publishWebProjects: true
         projects: '**/${{ variables.portalApiSolution }}.csproj'
-        arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+        arguments: '--configuration Release --output $(build.artifactstagingdirectory) --self-contained true'
         zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
