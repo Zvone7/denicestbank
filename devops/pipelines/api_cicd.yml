@@ -2,6 +2,9 @@ parameters:
 - name: environments
   type: object
   default: ['d']
+- name: should_dependency_check
+  type: boolean
+  default: false
 
 trigger: 
   branches:
@@ -26,18 +29,56 @@ stages:
       inputs:
         packageType: 'sdk'
         version: '${{ variables.dotnetSdkVersion }}'
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: 'build'
+        projects: '${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
+        arguments: "--configuration Release"
 
-    - script: |
-        dotnet restore
-        dotnet build $(Build.SourcesDirectory)/${{ variables.portalApiSolution }}/denicestbankportal.sln --configuration Release
-        dotnet publish $(Build.SourcesDirectory)/${{ variables.portalApiSolution }}/denicestbankportal.sln --configuration Release --output $(Build.ArtifactStagingDirectory)/publish
-      displayName: 'Build and Publish'
+    - task: DotNetCoreCLI@2
+      displayName: 'Test'
+      inputs:
+        command: test
+        projects: '**/*.csproj'
+        arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
+
+    # Zips and publish the build artifact to the artifact staging directory
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+        zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/publish'
+        targetPath: '$(Build.ArtifactStagingDirectory)'
         artifact: 'publish'
         publishLocation: 'pipeline'
+
+    - task: dependency-check-build-task@6
+      displayName: Execute Owasp Scan
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        projectName: 'resource/webapp/MetadataStore.API'
+        scanPath: '$(Build.SourcesDirectory)/**/bin/Release/net*/*.dll'
+        suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
+        failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
+        format: 'HTML, JSON, JUNIT'
+        enableExperimental: true
+        
+    - task: PublishTestResults@2
+      displayName: Publish Owasp Dependency Check Test Results
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
+        searchFolder: '$(Common.TestResultsDirectory)'
+        testRunTitle: 'Dependency Check'
+        buildConfiguration: 'Release'
 
 - ${{ each env in parameters.environments }}:
   - stage: Deploy
