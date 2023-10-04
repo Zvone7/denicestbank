@@ -50,6 +50,7 @@ stages:
       inputs:
         command: 'publish'
         publishWebProjects: true
+        projects: '**/${{ variables.portalApiSolution }}.csproj'
         arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
         zipAfterPublish: True
 
