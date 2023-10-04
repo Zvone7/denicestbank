@@ -7,3 +7,4 @@ variables:
   sqlUsername: sql_admin
   dotnetSdkVersion: 7.0
   portalApiSolution: denicestbankportal
+  portalAppName: dnb-portal-d-01

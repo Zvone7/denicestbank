@@ -59,7 +59,7 @@ stages:
                 inputs:
                   azureSubscription: ${{ variables.envDevOpsServiceConnection }}
                   appType: 'webApp'
-                  appName: ${{ variables.appName }}
+                  appName: ${{ variables.portalAppName }}
                   package: $(Pipeline.Workspace)/publish
                   deploymentMethod: 'auto'
                   enableCustomDeployment: true
