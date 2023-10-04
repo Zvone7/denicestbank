@@ -105,21 +105,21 @@ stages:
                   KeyVaultName: ${{ variables.keyVaultName }}
                   SecretsFilter: '*'  # You can specify which secrets to fetch here
 
-              - powershell: |
-                  # Convert the secrets to JSON format for app settings
-                  $connectionStrings = @{
-                    "ConnectionStrings__DbConnectionString" = "$(DbConnectionString)"
-                  } | ConvertTo-Json -Compress
+              # - powershell: |
+              #     # Convert the secrets to JSON format for app settings
+              #     $connectionStrings = @{
+              #       "ConnectionStrings__DbConnectionString" = "$(DbConnectionString)"
+              #     } | ConvertTo-Json -Compress
 
-                  # Update app settings using Azure PowerShell
-                  az webapp config appsettings set `
-                    --resource-group $(ResourceGroupName) `
-                    --name $(AppName) `
-                    --settings $connectionStrings
-                displayName: 'Update App Service Settings'
-                env:
-                  DbConnectionString: $(DbConnectionString)  # Use your pipeline variable or secret here
-                workingDirectory: $(System.DefaultWorkingDirectory)
+              #     # Update app settings using Azure PowerShell
+              #     az webapp config appsettings set `
+              #       --resource-group $(ResourceGroupName) `
+              #       --name $(AppName) `
+              #       --settings $connectionStrings
+              #   displayName: 'Update App Service Settings'
+              #   env:
+              #     DbConnectionString: $(DbConnectionString)  # Use your pipeline variable or secret here
+              #   workingDirectory: $(System.DefaultWorkingDirectory)
 
               - task: AzureWebApp@1
                 displayName: 'Deploy Azure Web App'
