@@ -27,9 +27,19 @@ stages:
     steps:
     - task: UseDotNet@2
       inputs:
+        displayName: 'Use .NET 7.0.x SDK'
         packageType: 'sdk'
-        version: '${{ variables.dotnetSdkVersion }}'
-    
+        inputs:
+          version: 7.0.x
+
+    - task: DotNetCoreCLI@2
+      displayName: Install dotnet-ef
+      condition: ${{parameters.should_verify}}
+      inputs:
+        command: 'custom'
+        custom: 'tool'
+        arguments: 'install --global dotnet-ef'
+
     - task: DotNetCoreCLI@2
       displayName: 'Build'
       inputs:
@@ -50,15 +60,14 @@ stages:
       inputs:
         command: 'publish'
         publishWebProjects: true
-        projects: '**/${{ variables.portalApiSolution }}.csproj'
-        arguments: '--configuration Release --output $(build.artifactstagingdirectory) --self-contained false'
+        arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
         zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
+      displayName: 'Publish artifact to pipeline'
       inputs:
         targetPath: '$(Build.ArtifactStagingDirectory)'
-        artifact: 'app'
-        publishLocation: 'pipeline'
+        ArtifactName: 'app'
 
     # - task: dependency-check-build-task@6
     #   displayName: Execute Owasp Scan
@@ -103,7 +112,8 @@ stages:
                 inputs:
                   azureSubscription: ${{ variables.envDevOpsServiceConnection }}
                   KeyVaultName: ${{ variables.keyVaultName }}
-                  SecretsFilter: '*'  # You can specify which secrets to fetch here
+                  SecretsFilter: '*'
+                  runAsPreJob: true
 
               - task: AzurePowerShell@5
                 displayName: 'Update secret variables'
@@ -121,23 +131,6 @@ stages:
                   targetFiles: '**/appsettings.json'
                   fileType: json
 
-
-              # - powershell: |
-              #     # Convert the secrets to JSON format for app settings
-              #     $connectionStrings = @{
-              #       "ConnectionStrings__DbConnectionString" = "$(DbConnectionString)"
-              #     } | ConvertTo-Json -Compress
-
-              #     # Update app settings using Azure PowerShell
-              #     az webapp config appsettings set `
-              #       --resource-group $(ResourceGroupName) `
-              #       --name $(AppName) `
-              #       --settings $connectionStrings
-              #   displayName: 'Update App Service Settings'
-              #   env:
-              #     DbConnectionString: $(DbConnectionString)  # Use your pipeline variable or secret here
-              #   workingDirectory: $(System.DefaultWorkingDirectory)
-
               - task: AzureWebApp@1
                 displayName: 'Deploy Azure Web App'
                 inputs:
@@ -146,4 +139,3 @@ stages:
                   appType: 'webApp'
                   package: '$(Pipeline.Workspace)/app/*.zip'
                   appSettings: '-ENVIRONMENT_NAME ${{ env }}'
-                  deploymentMethod: zipDeploy
