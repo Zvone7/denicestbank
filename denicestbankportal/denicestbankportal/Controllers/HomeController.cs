@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace denicestbankportal.Controllers;
 
-// [Authorize]
+[Authorize]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger_;
