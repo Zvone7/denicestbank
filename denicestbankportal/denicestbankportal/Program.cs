@@ -17,6 +17,8 @@ builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, relo
 #endif
 var connectionString = builder.Configuration["ConnectionStrings:DbConnectionString"];
 
+Console.WriteLine("Application started");
+
 // Add PersonProvider and PersonService to the container.
 builder.Services.AddSingleton(provider => new PersonProvider(connectionString));
 builder.Services.AddSingleton(provider => new LoanProvider(connectionString));
@@ -53,6 +55,7 @@ app.Run();
 
 void AddAzureAuthenticationAndAuthorization()
 {
+    Console.WriteLine("Add Auth&Auth");
     var keyVaultName = builder.Configuration["KeyVaultName"];
     try
     {
@@ -65,13 +68,21 @@ void AddAzureAuthenticationAndAuthorization()
         builder.Services
             .AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
 
+        Console.WriteLine("Attempting to load all Aad properties");
         // Add Authorization using Managed Identity, App Registrations, and App Roles
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
+        var domain = builder.Configuration["portal-domain"];
         var instance = builder.Configuration["azure-instance"];
         var tenantId = builder.Configuration["azure-tenant-id"];
         var appClientId = builder.Configuration["portal-appreg-id"];
-        var domain = builder.Configuration["portal-domain"];
         var callbackPath = builder.Configuration["portal-callback-path"];
+
+        domain.ThrowIfNullOrWhiteSpace(nameof(domain));
+        instance.ThrowIfNullOrWhiteSpace(nameof(instance));
+        tenantId.ThrowIfNullOrWhiteSpace(nameof(tenantId));
+        appClientId.ThrowIfNullOrWhiteSpace(nameof(appClientId));
+        callbackPath.ThrowIfNullOrWhiteSpace(nameof(callbackPath));
+        Console.WriteLine("All Aad properties loaded");
 
         if (String.IsNullOrWhiteSpace(instance) ||
             String.IsNullOrWhiteSpace(tenantId) ||
@@ -92,11 +103,21 @@ void AddAzureAuthenticationAndAuthorization()
         builder.Services
             .AddAuthentication(AzureADDefaults.AuthenticationScheme)
             .AddAzureAD(options => builder.Configuration.Bind("AzureAd", options));
+        Console.WriteLine("Aad auth initialized.");
     }
     catch (Exception e)
     {
         var message = $"{DateTime.Now}|Exception setting up Azure Authentication: KeyVault {keyVaultName}: {e}";
         Console.WriteLine(message);
         System.Diagnostics.Trace.TraceError(message);
+    }
+}
+
+public static class StringExt
+{
+    public static void ThrowIfNullOrWhiteSpace(this String? propertyValue, String propertyName)
+    {
+        if (String.IsNullOrWhiteSpace(propertyValue))
+            throw new InvalidCredentialException($"Unable to retrieve mandatory fields for field {propertyName} - cannot be empty");
     }
 }
