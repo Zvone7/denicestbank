@@ -1,12 +1,13 @@
 using denicestbankportal.Logic;
 using denicestbankportal.Models;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace denicestbankportal.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 public class PersonController : Controller
 {

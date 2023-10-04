@@ -2,11 +2,12 @@
 using denicestbankportal.Logic;
 using Microsoft.AspNetCore.Mvc;
 using denicestbankportal.Models;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 
 namespace denicestbankportal.Controllers;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger_;

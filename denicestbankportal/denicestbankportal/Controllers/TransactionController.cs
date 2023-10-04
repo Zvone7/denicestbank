@@ -3,12 +3,13 @@ using denicestbankportal.Logic;
 using denicestbankportal.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
 namespace denicestbankportal.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 public class TransactionController : Controller
 {
@@ -24,6 +25,12 @@ public class TransactionController : Controller
     {
         var createdTransaction = await _transactionService.InsertTransactionAsync(transaction);
         return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
+    }
+
+    [HttpGet]
+    public ActionResult<String> Test()
+    {
+        return Ok("Just a test");
     }
 
 }
