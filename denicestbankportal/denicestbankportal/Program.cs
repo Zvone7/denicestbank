@@ -45,8 +45,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "catch-all",
+    pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
 
