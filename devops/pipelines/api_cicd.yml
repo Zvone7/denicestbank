@@ -33,7 +33,6 @@ stages:
 
     - task: DotNetCoreCLI@2
       displayName: Install dotnet-ef
-      condition: ${{parameters.should_verify}}
       inputs:
         command: 'custom'
         custom: 'tool'
