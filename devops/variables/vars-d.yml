@@ -13,3 +13,6 @@ variables:
   dbSkuTier: Basic
   dbSkuCapacity: 5
   diagnosticLogRetentionPeriod: 30
+
+  # api
+  appName: dnb-portal-d-01

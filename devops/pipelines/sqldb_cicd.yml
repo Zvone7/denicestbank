@@ -20,7 +20,6 @@ stages:
 - stage: build
   displayName: Build
   variables: 
-  # Load environment variables
     - template: ../variables/vars.yml
 
   jobs:
