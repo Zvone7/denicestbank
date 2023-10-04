@@ -36,7 +36,8 @@ public class Loan
         var totalAmount = LoanBaseAmount;
         for (int i = 0; i < DurationInDays; i += 365)
         {
-            totalAmount += totalAmount * Interest;
+            var yearlyInterest = totalAmount * Interest;
+            totalAmount += yearlyInterest;
         }
         return totalAmount;
     }

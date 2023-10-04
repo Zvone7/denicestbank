@@ -1,29 +1,29 @@
 using System.Transactions;
 using denicestbankportal.Logic;
 using denicestbankportal.Models;
-    using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
-namespace denicestbankportal.Controllers
+namespace denicestbankportal.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/[controller]")]
+public class TransactionController : Controller
 {
+    private readonly TransactionService _transactionService;
 
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TransactionController : Controller
+    public TransactionController(TransactionService transactionService)
     {
-        private readonly TransactionService _transactionService;
-
-        public TransactionController(TransactionService transactionService)
-        {
-            _transactionService = transactionService;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Transact>> PerformTransaction(Transact transaction)
-        {
-            var createdTransaction = await _transactionService.InsertTransactionAsync(transaction);
-            return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
-        }
-
+        _transactionService = transactionService;
     }
+
+    [HttpPost]
+    public async Task<ActionResult<Transact>> PerformTransaction(Transact transaction)
+    {
+        var createdTransaction = await _transactionService.InsertTransactionAsync(transaction);
+        return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
+    }
+
 }

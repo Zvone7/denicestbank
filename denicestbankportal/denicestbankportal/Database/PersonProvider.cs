@@ -21,41 +21,41 @@ public class PersonProvider
         return await dbConnection.QueryAsync<Person>("SELECT * FROM Person");
     }
 
-    public async Task<Person> GetPersonByIdAsync(Guid id)
+    public async Task<Person> GetPersonByIdAsync(Guid personId)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        return await dbConnection.QueryFirstOrDefaultAsync<Person>("SELECT * FROM Person WHERE Id = @Id", new { Id = id });
+        return await dbConnection.QueryFirstOrDefaultAsync<Person>("SELECT * FROM Person WHERE Id = @Id", new { Id = personId });
     }
 
     public async Task<Person> CreatePersonAsync(Person person)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        var query = "INSERT INTO Person (FullName, Email, RoleId, Ssn) " +
+        var query = "INSERT INTO Person (Id, FullName, Email, Role, Ssn) " +
                     "OUTPUT INSERTED.Id " +
-                    "VALUES (@FullName, @Email, @RoleId, @Ssn)";
+                    "VALUES (@Id, @FullName, @Email, @Role, @Ssn)";
         var id = await dbConnection.ExecuteScalarAsync<Guid>(query, person);
         person.Id = id;
         return person;
     }
 
-    public async Task<Person> UpdatePersonAsync(Person person)
-    {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
-        dbConnection.Open();
-        await dbConnection.ExecuteAsync(
-            "UPDATE Person SET FullName = @FullName, Email = @Email, RoleId = @RoleId, Ssn = @Ssn " +
-            "WHERE Id = @Id",
-            person
-        );
-        return person;
-    }
+    // public async Task<Person> UpdatePersonAsync(Person person)
+    // {
+    //     using IDbConnection dbConnection = new SqlConnection(_connectionString);
+    //     dbConnection.Open();
+    //     await dbConnection.ExecuteAsync(
+    //         "UPDATE Person SET FullName = @FullName, Email = @Email, RoleId = @RoleId, Ssn = @Ssn " +
+    //         "WHERE Id = @Id",
+    //         person
+    //     );
+    //     return person;
+    // }
 
-    public async Task DeletePersonAsync(Guid id)
-    {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
-        dbConnection.Open();
-        await dbConnection.ExecuteAsync("DELETE FROM Person WHERE Id = @Id", new { Id = id });
-    }
+    // public async Task DeletePersonAsync(Guid id)
+    // {
+    //     using IDbConnection dbConnection = new SqlConnection(_connectionString);
+    //     dbConnection.Open();
+    //     await dbConnection.ExecuteAsync("DELETE FROM Person WHERE Id = @Id", new { Id = id });
+    // }
 }

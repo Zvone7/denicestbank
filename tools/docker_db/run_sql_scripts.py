@@ -12,9 +12,7 @@ conn = pyodbc.connect(conn_str, timeout=300)
 cursor = conn.cursor()
 
 sql_files = [
-    "/sql/Role.sql",
     "/sql/Person.sql",
-    "/sql/Borrower.sql",
     "/sql/Loan.sql",
     "/sql/PersonToLoan.sql",
     "/sql/Transact.sql"

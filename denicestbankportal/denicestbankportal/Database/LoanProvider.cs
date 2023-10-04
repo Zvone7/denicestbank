@@ -14,7 +14,7 @@ public class LoanProvider
         _connectionString = connectionString;
     }
 
-    public async Task<IEnumerable<LoanWithPersons>> GetAllLoansAsync()
+    public async Task<IEnumerable<LoanWithPersons>> GetAllLoansWithPersonsAsync()
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
@@ -45,7 +45,7 @@ public class LoanProvider
         return loansWithPersons;
     }
 
-    public async Task<LoanWithPersons> GetLoanByIdAsync(Guid loanId)
+    public async Task<LoanWithPersons> GetLoanWithPersonsByIdAsync(Guid loanId)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
@@ -74,7 +74,6 @@ public class LoanProvider
             Persons = persons
         };
     }
-
 
     public async Task<IEnumerable<LoanWithPersons>> GetLoansByPersonIdAsync(Guid personId)
     {
@@ -150,45 +149,15 @@ public class LoanProvider
         }
     }
 
-
-    public async Task<Loan> UpdateLoanAsync(Loan loan)
+    public async Task<Boolean> SetLoanToApprovedAsync(Guid loanId)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
         await dbConnection.ExecuteAsync(
-            "UPDATE Loan SET LoanBaseAmount = @LoanBaseAmount, " +
-            "StartDatetimeUtc = @StartDatetimeUtc, Interest = @Interest, " +
-            "LoanTotalAmount = @LoanTotalAmount, IsApproved = @IsApproved " +
+            "UPDATE Loan SET IsApproved = 1 " +
             "WHERE Id = @Id",
-            loan
+            new { Id = loanId }
         );
-        return loan;
-    }
-
-    public async Task<Boolean> ApproveLoanAsync(Guid loanId)
-    {
-        try
-        {
-            using IDbConnection dbConnection = new SqlConnection(_connectionString);
-            dbConnection.Open();
-            await dbConnection.ExecuteAsync(
-                "UPDATE Loan SET IsApproved = 1 " +
-                "WHERE Id = @Id",
-                new { Id = loanId }
-            );
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error approving loan with ID {loanId}: {ex.Message}");
-            return false;
-        }
-    }
-
-    public async Task DeleteLoanAsync(Guid id)
-    {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
-        dbConnection.Open();
-        await dbConnection.ExecuteAsync("DELETE FROM Loan WHERE Id = @Id", new { Id = id });
+        return true;
     }
 }

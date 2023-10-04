@@ -1,6 +1,6 @@
 namespace denicestbankportal.Models;
 
-public class LoanCreateObj
+public class LoanApplyObj
 {
     public LoanBm Loan { get; set; }
     public IEnumerable<Guid> Guids { get; set; }

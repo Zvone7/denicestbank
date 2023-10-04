@@ -9,6 +9,8 @@ create api
     - create app registration
     - azure aad - passing along user id
     - automatic - user creation on login?
+    - add validators - interest < 1
+    - replace role with enum
 create app service
 azure ad auth&auth
 xunit for unit tests
@@ -19,3 +21,11 @@ azure resources:
 - keyvault (cicd + bicep)
 - azure function for fetching latest states of transactions, http trigger
 - azure function that triggers once an hour to add transactions, cron job
+
+users:
+
+customer1@denicestbank.onmicrosoft.com
+Customerovitch!!
+
+adviser1@denicestbank.onmicrosoft.com
+kg18Z333

@@ -1,4 +1,5 @@
-﻿@{
+﻿@using denicestbankportal.Controllers
+@{
     ViewData["Title"] = "Apply for a loan";
 }
 <div class="text-center">
@@ -29,7 +30,7 @@
         $(document).ready(function () {
             $.ajax({
                 type: "GET",
-                url: "/api/loan/getallloansbypersonid?personId=8dcb1e50-c644-4b26-b7ac-8541db0596db",
+                url: "/api/loan/getallloansbypersonid",
                 contentType: "application/json",
                 success: function (response) {
                     console.log("get all loans by person id - success")
@@ -67,14 +68,10 @@
             $('#submitLoan').on('click', function () {
                 var loanBaseAmount = $('#loanBaseAmount').val();
                 var interest = $('#interest').val();
-                var guid = '8dcb1e50-c644-4b26-b7ac-8541db0596db';
 
                 var data = {
-                    "Loan": {
-                        'LoanBaseAmount': loanBaseAmount,
-                        'Interest': interest,
-                    },
-                    "Guids": [guid]
+                    'LoanBaseAmount': loanBaseAmount,
+                    'Interest': interest,
                 };
                 console.log("making request", data)
                 // Send the loan data to the server via AJAX

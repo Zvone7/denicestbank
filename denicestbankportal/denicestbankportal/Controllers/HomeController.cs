@@ -1,25 +1,26 @@
 ﻿using System.Diagnostics;
+using denicestbankportal.Logic;
 using Microsoft.AspNetCore.Mvc;
 using denicestbankportal.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace denicestbankportal.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<HomeController> _logger_;
+    private readonly PersonService _personService_;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, PersonService personService)
     {
-        _logger = logger;
+        _logger_ = logger;
+        _personService_ = personService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
+        await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
         return View();
     }
 

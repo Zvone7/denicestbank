@@ -1,77 +1,57 @@
 using denicestbankportal.Logic;
 using denicestbankportal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace denicestbankportal.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class LoanController : Controller
     {
-        private readonly LoanService _loanService;
+        private readonly LoanService _loanService_;
+        private readonly ILogger<LoanController> _logger_;
 
-        public LoanController(LoanService loanService)
+        public LoanController(LoanService loanService, ILogger<LoanController> logger)
         {
-            _loanService = loanService ?? throw new ArgumentNullException(nameof(loanService));
+            _loanService_ = loanService ?? throw new ArgumentNullException(nameof(loanService));
+            _logger_ = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LoanOverview>>> GetAllLoans()
+        public async Task<ActionResult<IEnumerable<LoanOverview>>> GetAllLoansOverview()
         {
-            var loans = await _loanService.GetAllLoansAsync();
-            return Ok(loans);
-        }
-        [HttpGet("{id}")]
-        [Route(nameof(GetAllLoansByPersonId))]
-        public async Task<ActionResult<IEnumerable<LoanOverview>>> GetAllLoansByPersonId(Guid personId)
-        {
-            var loans = await _loanService.GetAllLoansByPersonGuidAsync(personId);
+            var loans = await _loanService_.GetAllLoansOverviewAsync();
             return Ok(loans);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<LoanOverview>> GetLoan(Guid id)
+        [HttpGet]
+        [Route(nameof(GetAllLoansByPersonId))]
+        public async Task<ActionResult<IEnumerable<LoanOverview>>> GetAllLoansByPersonId()
         {
-            var loan = await _loanService.GetLoanAsync(id);
-            if (loan == null)
-            {
-                return NotFound();
-            }
-            return Ok(loan);
+            var aadId = ControllerHelper.ExtractAadId(User);
+            var loans = await _loanService_.GetAllLoansByPersonIdAsync(aadId);
+            return Ok(loans);
         }
-        
-        
+
+
         [HttpPut("{id}")]
         [Route(nameof(ApproveLoan))]
         public async Task<IActionResult> ApproveLoan(Guid loanId)
         {
-            var approveResult = await _loanService.ApproveLoanAsync(loanId);
+            var approveResult = await _loanService_.ApproveLoanAsync(loanId);
 
             return Ok(approveResult);
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Loan>> CreateLoan(LoanCreateObj loanCreateObj)
+        public async Task<ActionResult<Loan>> ApplyForLoan(LoanBm loanBm)
         {
-            var createdLoan = await _loanService.CreateLoanAsync(loanCreateObj);
-            return CreatedAtAction(nameof(GetLoan), new { id = createdLoan.Id }, createdLoan);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLoan(Loan loan)
-        {
-            loan.Id = Guid.Parse(RouteData.Values["id"].ToString());
-            var updatedLoan = await _loanService.UpdateLoanAsync(loan);
-
-            return Ok(updatedLoan);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteLoan(Guid id)
-        {
-            await _loanService.DeleteLoanAsync(id);
-            return NoContent();
+            var aadId = ControllerHelper.ExtractAadId(User);
+            var createdLoan = await _loanService_.ApplyForLoanAsync(new LoanApplyObj() { Loan = loanBm, Guids = new List<Guid>() { aadId } });
+            return CreatedAtAction(nameof(ApplyForLoan), new { id = createdLoan.Id }, createdLoan);
         }
     }
 }
