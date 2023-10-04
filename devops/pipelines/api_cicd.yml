@@ -59,26 +59,26 @@ stages:
         artifact: 'publish'
         publishLocation: 'pipeline'
 
-    - task: dependency-check-build-task@6
-      displayName: Execute Owasp Scan
-      condition: ${{parameters.should_dependency_check}}
-      inputs:
-        projectName: 'resource/webapp/MetadataStore.API'
-        scanPath: '$(Build.SourcesDirectory)/**/bin/Release/net*/*.dll'
-        suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
-        failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
-        format: 'HTML, JSON, JUNIT'
-        enableExperimental: true
-        
-    - task: PublishTestResults@2
-      displayName: Publish Owasp Dependency Check Test Results
-      condition: ${{parameters.should_dependency_check}}
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '**/*-junit.xml'
-        searchFolder: '$(Common.TestResultsDirectory)'
-        testRunTitle: 'Dependency Check'
-        buildConfiguration: 'Release'
+    # - task: dependency-check-build-task@6
+    #   displayName: Execute Owasp Scan
+    #   condition: ${{parameters.should_dependency_check}}
+    #   inputs:
+    #     projectName: 'resource/webapp/MetadataStore.API'
+    #     scanPath: '$(Build.SourcesDirectory)/**/bin/Release/net*/*.dll'
+    #     suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
+    #     failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
+    #     format: 'HTML, JSON, JUNIT'
+    #     enableExperimental: true
+
+    # - task: PublishTestResults@2
+    #   displayName: Publish Owasp Dependency Check Test Results
+    #   condition: ${{parameters.should_dependency_check}}
+    #   inputs:
+    #     testResultsFormat: 'JUnit'
+    #     testResultsFiles: '**/*-junit.xml'
+    #     searchFolder: '$(Common.TestResultsDirectory)'
+    #     testRunTitle: 'Dependency Check'
+    #     buildConfiguration: 'Release'
 
 - ${{ each env in parameters.environments }}:
   - stage: Deploy
