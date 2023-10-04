@@ -17,9 +17,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ItemGroup>
-            <Content Include="Views\**\*.cshtml" CopyToOutputDirectory="PreserveNewest"/>
-        </ItemGroup>
+        <Content Update="Views\**\*.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
