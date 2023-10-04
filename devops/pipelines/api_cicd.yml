@@ -103,15 +103,15 @@ stages:
                   keyVaultName: ${{ variables.keyVaultName }}
                   runAsPreJob: true
 
-              # - task: AzurePowerShell@5
-              #   displayName: 'Update secret variables'
-              #   inputs:
-              #     azureSubscription: ${{ variables.envDevOpsServiceConnection }}
-              #     ScriptType: 'InlineScript'
-              #     Inline: |
-              #       Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.metadatastore_string_secret_name }})"
-              #     azurePowerShellVersion: 'LatestVersion'
-              
+              - task: AzurePowerShell@5
+                displayName: 'Update secret variables'
+                inputs:
+                  azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+                  ScriptType: 'InlineScript'
+                  Inline: |
+                    Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.connectionStringSecretName }})"
+                  azurePowerShellVersion: 'LatestVersion'
+
               - task: FileTransform@1
                 displayName: 'Update appsettings.json environment properties'
                 inputs:
