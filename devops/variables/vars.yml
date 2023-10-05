@@ -7,5 +7,6 @@ variables:
   sqlUsername: sql_admin
   dotnetSdkVersion: '7.x'
   portalApiSolution: denicestbankportal
+  funcAppProj: transactgenerator
 
   connectionStringSecretName: dnb-sql-conn-string

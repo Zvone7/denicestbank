@@ -16,3 +16,6 @@ variables:
 
   # api
   webAppName: dnb-portal-d-01
+
+  # funcapp
+  funcAppName: dnb-transactgenerator-d-01
