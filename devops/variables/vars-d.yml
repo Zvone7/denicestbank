@@ -15,4 +15,4 @@ variables:
   diagnosticLogRetentionPeriod: 30
 
   # api
-  appName: dnb-portal-d-01
+  webAppName: dnb-portal-d-01

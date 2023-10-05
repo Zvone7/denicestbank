@@ -2,6 +2,9 @@ parameters:
 - name: environments
   type: object
   default: ['d']
+- name: webAppName
+  type: string
+  default: 'dnb-portal-01'
 - name: should_dependency_check
   type: boolean
   default: false
@@ -126,7 +129,7 @@ stages:
                 displayName: 'Deploy Azure Web App'
                 inputs:
                   azureSubscription: ${{ variables.envDevOpsServiceConnection }}
-                  appName: ${{ variables.appName }}
+                  appName: ${{ parameters.webAppName }}
                   appType: 'webApp'
                   package: '$(Pipeline.Workspace)/app/*.zip'
                   appSettings: '-ENVIRONMENT_NAME ${{ env }}'
