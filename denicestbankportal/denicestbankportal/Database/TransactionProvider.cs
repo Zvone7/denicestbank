@@ -48,4 +48,27 @@ public class TransactionProvider
         transaction.Id = id;
         return transaction;
     }
+    public async Task<IEnumerable<Payment>> GetAllEnrinchedTransactions()
+    {
+
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
+        dbConnection.Open();
+        var query = @"
+                select 
+                    t.Id,
+                    t.PersonId,
+                    t.LoanId,
+                    t.UpdateDatetimeUtc,
+                    t.Amount,
+                    l.Purpose as LoanPurpose,
+                    p.FullName as PersonFullName
+                 FROM
+                Transact as t
+                inner join Loan as l on t.LoanId = l.Id
+                inner join Person as p on t.PersonId = p.Id
+                order by t.UpdateDatetimeUtc DESC";
+
+        return await dbConnection.QueryAsync<Payment>(query);
+
+    }
 }

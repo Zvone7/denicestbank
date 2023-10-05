@@ -24,7 +24,7 @@ public class TransactionController : Controller
     [Route(nameof(GenerateTransactions))]
     public async Task<ActionResult<IEnumerable<Transact>>> GenerateTransactions()
     {
-        var transactionResults = (await _transactionService.AutoGenerateTransactionsAsync());
+        var transactionResults = (await _transactionService.GenerateTransactionsAsync());
         return Ok(transactionResults);
     }
 

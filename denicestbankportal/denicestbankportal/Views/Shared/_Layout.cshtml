@@ -13,9 +13,6 @@
     }
 </ul>
 
-<Authorize>
-</Authorize>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,14 +44,17 @@
                             User.Identity.Name.Contains("zvonimir", StringComparison.OrdinalIgnoreCase))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Adviser" asp-action="Index">Adviser</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Adviser" asp-action="Index">Loans</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Payment" asp-action="Index">Transactions</a>
                             </li>
                         }
                         if (User.Identity.Name.Contains("customer", StringComparison.OrdinalIgnoreCase) || 
                             User.Identity.Name.Contains("zvonimir", StringComparison.OrdinalIgnoreCase))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">Customer</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">Apply for a loan</a>
                             </li>
                         }
                     }

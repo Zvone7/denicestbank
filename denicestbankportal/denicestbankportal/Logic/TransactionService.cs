@@ -10,11 +10,16 @@ namespace denicestbankportal.Logic
     {
         private readonly TransactionProvider _transactionProvider;
         private readonly LoanProvider _loanProvider;
+        private readonly ILogger<TransactionService> _logger_;
 
-        public TransactionService(TransactionProvider transactionProvider, LoanProvider loanProvider)
+        public TransactionService(
+            TransactionProvider transactionProvider,
+            LoanProvider loanProvider,
+            ILogger<TransactionService> logger)
         {
             _transactionProvider = transactionProvider;
             _loanProvider = loanProvider;
+            _logger_ = logger;
         }
 
         public async Task<IEnumerable<LoanLatestState>> GetAllLoansLatestStates()
@@ -26,7 +31,7 @@ namespace denicestbankportal.Logic
             return await _transactionProvider.GetLoanLatestState(loanId);
         }
 
-        public async Task<IEnumerable<Transact>> AutoGenerateTransactionsAsync()
+        public async Task<IEnumerable<Transact>> GenerateTransactionsAsync()
         {
             try
             {
@@ -85,6 +90,24 @@ namespace denicestbankportal.Logic
             var randomPercentage = (decimal)random.NextDouble() * (maxPercentage - minPercentage) + minPercentage;
 
             return totalAmount * randomPercentage;
+        }
+
+        public async Task<IEnumerable<Payment>> GetLatestPayments(Int32 pageIndex, Int32 pageSize)
+        {
+            try
+            {
+                var payments =
+                    (await _transactionProvider.GetAllEnrinchedTransactions())
+                    .Skip((pageIndex-1) * pageSize)
+                    .Take(pageSize);
+
+                return payments;
+            }
+            catch (Exception e)
+            {
+                _logger_.LogError($"Exception on {nameof(GetLatestPayments)}", e);
+                return new List<Payment>();
+            }
         }
     }
 

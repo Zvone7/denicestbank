@@ -114,8 +114,8 @@ public class LoanProvider
         {
             // Insert the loan into the database
             await dbConnection.ExecuteAsync(
-                "INSERT INTO Loan (LoanBaseAmount, DurationInDays, StartDatetimeUtc, Interest, LoanTotalAmount, IsApproved) " +
-                "VALUES (@LoanBaseAmount, @DurationInDays, @StartDatetimeUtc, @Interest, @LoanTotalAmount, @IsApproved)",
+                "INSERT INTO Loan (LoanBaseAmount, Purpose, DurationInDays, StartDatetimeUtc, Interest, LoanTotalAmount, IsApproved) " +
+                "VALUES (@LoanBaseAmount, @Purpose, @DurationInDays, @StartDatetimeUtc, @Interest, @LoanTotalAmount, @IsApproved)",
                 loan,
                 transaction
             );
