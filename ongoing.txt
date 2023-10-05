@@ -6,26 +6,24 @@ create database
 
 todo:
 create api
-    - create app registration
-    - azure aad - passing along user id
-    - automatic - user creation on login?
     - add validators - interest < 1
-    - replace role with enum
-create app service
-azure ad auth&auth
 xunit for unit tests
+    - write tests
 monitor for logs (dashboards, alerts)
 azure resources:
-- sql database (cicd + bicep) - fix
-- app service plan (cicd + bicep) - add owasp task
+- sql database
+    - created: yes
+    - deployment via cicd - yes
+    - bicep: ish, linux limit
+- app service plan
+    - created: yes
+    - deployment via cicd - yes
+        - add owasp task
+    - bicep: no
 - keyvault (cicd + bicep)
-- azure function for fetching latest states of transactions, http trigger
+    - deployment via cicd - no - intentional
+    - created: yes
 - azure function that triggers once an hour to add transactions, cron job
-
-users:
-
-customer1@denicestbank.onmicrosoft.com
-Customerovitch!!
-
-adviser1@denicestbank.onmicrosoft.com
-kg18Z333
+    - deployment via cicd - no
+    - created: no
+    - bicep: no

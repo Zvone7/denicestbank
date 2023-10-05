@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Read the connection string from appsettings.json
 #if DEBUG
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 #endif
@@ -80,7 +79,7 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
         //         new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
 
         logger.LogInformation("*** Attempting to load all Aad properties");
-        
+
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
         var domain = builder.Configuration["portal-domain"];
         var instance = builder.Configuration["azure-instance"];
@@ -94,7 +93,7 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
         appClientId.ThrowIfNullOrWhiteSpace(nameof(appClientId));
         callbackPath.ThrowIfNullOrWhiteSpace(nameof(callbackPath));
 
-        logger.LogInformation("*** All Aad properties loaded");
+        logger.LogInformation("*** All Aad properties loaded"); 
         logger.LogInformation($"***_ Domain: {domain.Substring(0, 3)}");
         logger.LogInformation($"***_ TenantId: {tenantId.Substring(0, 3)}");
         logger.LogInformation($"***_ AppClientId: {appClientId.Substring(0, 3)}");
@@ -104,27 +103,17 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
         azureAdSection.GetSection("ClientId").Value = appClientId;
         azureAdSection.GetSection("CallbackPath").Value = callbackPath;
         azureAdSection.GetSection("Domain").Value = domain;
-        
-        
+
+
         // for Azure AD users
         builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
-        // builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-        //     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
-        
+
         // for app regs
-        // builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
-        // Configure authentication for calling APIs
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"))
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
-        
-        
-// #if DEBUG
-        IdentityModelEventSource.ShowPII = true;
-        IdentityModelEventSource.LogCompleteSecurityArtifact = true;
-// #endif
-        
+
         logger.LogInformation("*** Aad Auth&Auth initialized.");
     }
     catch (Exception e)
