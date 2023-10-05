@@ -21,10 +21,10 @@ public class TransactionController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult<Transact>> PerformTransaction(Transact transaction)
+    public async Task<ActionResult<Boolean>> GenerateTransactions()
     {
-        var createdTransaction = await _transactionService.InsertTransactionAsync(transaction);
-        return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
+        return await _transactionService.AutoGenerateTransactionsAsync();
+
     }
 
 }

@@ -23,9 +23,9 @@ namespace denicestbankportal.Logic
             return await _transactionProvider.GetLoanLatestState(loanId);
         }
 
-        public async Task<Transact> InsertTransactionAsync(Transact transaction)
+        public async Task<Boolean> AutoGenerateTransactionsAsync()
         {
-            return await _transactionProvider.InsertTransactionAsync(transaction);
+            return false;
         }
     }
 }
