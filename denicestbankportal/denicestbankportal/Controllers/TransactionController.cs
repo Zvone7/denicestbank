@@ -27,10 +27,4 @@ public class TransactionController : Controller
         return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
     }
 
-    [HttpGet]
-    public ActionResult<String> Test()
-    {
-        return Ok("Just a test");
-    }
-
 }

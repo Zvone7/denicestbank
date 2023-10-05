@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace denicestbankportal.Controllers;
 
-// [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger_;
@@ -21,13 +21,8 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
+        await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
         return View();
-    }
-
-    public ActionResult<String> Test()
-    {
-        return "is just a test bro";
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

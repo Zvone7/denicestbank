@@ -3,13 +3,12 @@
     {
         var fullName = User.Claims.Where(c => c.Type == "name").Select(c => c.Value).First();
         <label>Welcome @fullName</label>
-        @* <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a> *@
 
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" href="/signin-azuread">Login</a>
+            <a class="nav-link text-dark" href="/signin-oidc">Login</a>
         </li>
     }
 </ul>

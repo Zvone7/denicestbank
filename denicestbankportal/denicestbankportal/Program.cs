@@ -89,19 +89,18 @@ void AddAzureAuthenticationAndAuthorization()
         azureAdSection.GetSection("Domain").Value = domain;
         
         
+        // for Azure AD users
         // builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
         builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
         
-        
+        // for app regs
         // builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
         // Configure authentication for calling APIs
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"))
             .EnableTokenAcquisitionToCallDownstreamApi()
             .AddInMemoryTokenCaches();
-
-        builder.Services.AddControllersWithViews();
         
         
 #if DEBUG
