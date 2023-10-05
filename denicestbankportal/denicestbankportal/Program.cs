@@ -25,7 +25,21 @@ builder.Services.AddSingleton<PersonService>();
 builder.Services.AddSingleton<LoanService>();
 builder.Services.AddSingleton<TransactionService>();
 
-AddAzureAuthenticationAndAuthorization();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+
+var loggerFactory = LoggerFactory.Create(c =>
+{
+    c.AddConsole();
+    c.AddDebug();
+});
+
+var logger = loggerFactory.CreateLogger<Program>();
+logger.LogInformation("*** DI initialized.");
+
+AddAzureAuthenticationAndAuthorization(logger);
 
 builder.Services.AddControllersWithViews();
 
@@ -54,9 +68,9 @@ app.UseEndpoints(endpoints =>
 app.Run();
 
 
-void AddAzureAuthenticationAndAuthorization()
+void AddAzureAuthenticationAndAuthorization(ILogger logger)
 {
-    Console.WriteLine("*** Start Auth&Auth setup");
+    logger.LogInformation("*** Start Auth&Auth setup");
     var keyVaultName = builder.Configuration["KeyVaultName"];
     try
     {
@@ -65,7 +79,7 @@ void AddAzureAuthenticationAndAuthorization()
                 new Uri($"https://{keyVaultName}.vault.azure.net/"),
                 new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
 
-        Console.WriteLine("*** Attempting to load all Aad properties");
+        logger.LogInformation("*** Attempting to load all Aad properties");
         
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
         var domain = builder.Configuration["portal-domain"];
@@ -80,7 +94,10 @@ void AddAzureAuthenticationAndAuthorization()
         appClientId.ThrowIfNullOrWhiteSpace(nameof(appClientId));
         callbackPath.ThrowIfNullOrWhiteSpace(nameof(callbackPath));
 
-        Console.WriteLine("*** All Aad properties loaded");
+        logger.LogInformation("*** All Aad properties loaded");
+        logger.LogInformation($"***_ Domain: {domain.Substring(0, 3)}");
+        logger.LogInformation($"***_ TenantId: {tenantId.Substring(0, 3)}");
+        logger.LogInformation($"***_ AppClientId: {appClientId.Substring(0, 3)}");
 
         azureAdSection.GetSection("Instance").Value = instance;
         azureAdSection.GetSection("TenantId").Value = tenantId;
@@ -90,9 +107,9 @@ void AddAzureAuthenticationAndAuthorization()
         
         
         // for Azure AD users
-        // builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
-        builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+        builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
+        // builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+        //     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
         
         // for app regs
         // builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
@@ -103,17 +120,17 @@ void AddAzureAuthenticationAndAuthorization()
             .AddInMemoryTokenCaches();
         
         
-#if DEBUG
+// #if DEBUG
         IdentityModelEventSource.ShowPII = true;
         IdentityModelEventSource.LogCompleteSecurityArtifact = true;
-#endif
+// #endif
         
-        Console.WriteLine("*** Aad Auth&Auth initialized.");
+        logger.LogInformation("*** Aad Auth&Auth initialized.");
     }
     catch (Exception e)
     {
-        var message = $"Exception setting up Azure Authentication: {e}";
-        Console.WriteLine(message);
+        var message = $"Exception on {nameof(AddAzureAuthenticationAndAuthorization)}: {e.Message}";
+        logger.LogError(e, message);
         System.Diagnostics.Trace.TraceError(message);
     }
 }
