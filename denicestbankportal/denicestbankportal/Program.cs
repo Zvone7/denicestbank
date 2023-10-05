@@ -74,10 +74,10 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
     var keyVaultName = builder.Configuration["KeyVaultName"];
     try
     {
-        if (!builder.Environment.IsDevelopment())
-            builder.Configuration.AddAzureKeyVault(
-                new Uri($"https://{keyVaultName}.vault.azure.net/"),
-                new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
+        // if (!builder.Environment.IsDevelopment())
+        //     builder.Configuration.AddAzureKeyVault(
+        //         new Uri($"https://{keyVaultName}.vault.azure.net/"),
+        //         new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
 
         logger.LogInformation("*** Attempting to load all Aad properties");
         
