@@ -28,7 +28,6 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-
 var loggerFactory = LoggerFactory.Create(c =>
 {
     c.AddConsole();
@@ -39,8 +38,6 @@ var logger = loggerFactory.CreateLogger<Program>();
 logger.LogInformation("*** DI initialized.");
 
 AddAzureAuthenticationAndAuthorization(logger);
-
-var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
@@ -71,14 +68,8 @@ app.Run();
 void AddAzureAuthenticationAndAuthorization(ILogger logger)
 {
     logger.LogInformation("*** Start Auth&Auth setup");
-    var keyVaultName = builder.Configuration["KeyVaultName"];
     try
     {
-        // if (!builder.Environment.IsDevelopment())
-        //     builder.Configuration.AddAzureKeyVault(
-        //         new Uri($"https://{keyVaultName}.vault.azure.net/"),
-        //         new DefaultAzureCredential(new DefaultAzureCredentialOptions()));
-
         logger.LogInformation("*** Attempting to load all Aad properties");
 
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
