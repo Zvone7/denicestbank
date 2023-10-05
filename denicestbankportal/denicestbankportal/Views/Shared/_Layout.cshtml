@@ -1,11 +1,30 @@
-﻿<!DOCTYPE html>
+﻿<ul class="navbar-nav ml-auto">
+    @if (User is {Identity.IsAuthenticated: true})
+    {
+        var fullName = User.Claims.Where(c => c.Type == "name").Select(c => c.Value).First();
+        <label>Welcome @fullName</label>
+
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="/signin-oidc">Login</a>
+        </li>
+    }
+</ul>
+
+<Authorize>
+</Authorize>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - denicestbankportal</title>
+    <title>@ViewData["Title"] - DeNicestBank portal</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="~/denicestbankportal.styles.css" asp-append-version="true"/>
 </head>
 <body>
@@ -22,9 +41,23 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+                    @if (User is {Identity.IsAuthenticated: true})
+                    {
+                        if (User.Identity.Name.Contains("adviser", StringComparison.OrdinalIgnoreCase) || 
+                            User.Identity.Name.Contains("zvonimir", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Adviser" asp-action="Index">Adviser</a>
+                            </li>
+                        }
+                        if (User.Identity.Name.Contains("customer", StringComparison.OrdinalIgnoreCase) || 
+                            User.Identity.Name.Contains("zvonimir", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">Customer</a>
+                            </li>
+                        }
+                    }
                 </ul>
             </div>
         </div>
@@ -35,12 +68,6 @@
         @RenderBody()
     </main>
 </div>
-
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2023 - denicestbankportal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-</footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

@@ -1,7 +1,11 @@
 variables:
-  envDevOpsServiceConnection: devops-arm-d
+  envDevOpsServiceConnection: devops-arm-d-02
   sqlDbSolution: denicestbanksqldb  
   envRegionCode: swc
   envRegionName: swedencentral
 
   sqlUsername: sql_admin
+  dotnetSdkVersion: '7.x'
+  portalApiSolution: denicestbankportal
+
+  connectionStringSecretName: dnb-sql-conn-string
