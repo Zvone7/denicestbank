@@ -1,0 +1,147 @@
+parameters:
+- name: environments
+  type: object
+  default: ['d']
+
+resources:
+  repositories:
+    - repository: self
+
+trigger: 
+  branches:
+    include:
+      - develop
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+- stage: build
+  displayName: Build
+  variables: 
+    - template: ../variables/vars.yml
+
+  jobs:
+    - job: BuildDatabase
+      steps:
+        - checkout: self
+
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az bicep build --file $(Build.SourcesDirectory)/devops/iac/sqldb.bicep
+          displayName: 'Build Bicep to ARM Template'
+
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: '$(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/Seed' # Adjust the path to your Seed directory
+            Contents: '**/*.sql'
+            TargetFolder: '$(Build.ArtifactStagingDirectory)/SQLScripts'
+
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Build.ArtifactStagingDirectory)/SQLScripts'
+            artifact: 'sqlseedartifact'
+
+        # Publish the sqldb.json as artifact
+        - publish: $(Build.SourcesDirectory)/devops/iac/sqldb.json
+          displayName: Publish json artifact
+          artifact: sqlarmartifact
+
+        # Build SQL project
+        - script: dotnet build ${{ variables.sqlDbSolution }} --configuration release
+          displayName: Build SQL Database Project
+
+        # Publish the dacpac as artifact
+        - publish: $(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/bin/Release/net7.0/${{ variables.sqlDbSolution }}.dacpac
+          displayName: Publish dacpac artifact
+          artifact: sqldacpacartifact
+
+- ${{ each env in parameters.environments }}:
+  - stage: deploy_${{ env }}
+    displayName: Deploy to ${{ env }}
+    variables:
+      - template: ../variables/vars.yml
+      - template: ../variables/vars-${{ env }}.yml
+
+    jobs:
+      - deployment: DeployTo_${{ env }}
+        displayName: Deploy to env_${{ env }}
+        environment: env_${{ env }}
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: none
+
+                # Download the sqlarmartifact
+                - download: current
+                  displayName: download sqlarmartifact
+                  artifact: sqlarmartifact
+
+                # Download the sqldacpacartifact
+                - download: current
+                  displayName: download sqldacpacartifact
+                  artifact: sqldacpacartifact
+
+                - task: AzureResourceManagerTemplateDeployment@3
+                  displayName: "Creation of Azure SQL Database"
+                  inputs:
+                    azureResourceManagerConnection: ${{ variables.envDevOpsServiceConnection }}
+                    subscriptionId: "${{ variables.envSubscriptionId }}"
+                    resourceGroupName: "${{ variables.resourceGroupName }}"
+                    location: "${{ variables.envRegionName }}"
+                    csmFile: "$(Pipeline.Workspace)/sqlarmartifact/sqldb.json"
+                    overrideParameters: |
+                      -envCode ${{ env }} 
+                      -serverName ${{ variables.serverName }} 
+                      -sqlDBName ${{ variables.sqldatabasename }} 
+                      -dbSkuName ${{ variables.dbSkuName }} 
+                      -dbSkuTier ${{ variables.dbSkuTier }} 
+                      -dbSkuCapacity ${{ variables.dbSkuCapacity }} 
+                      -diagnosticLogRetentionPeriod ${{ variables.diagnosticLogRetentionPeriod }} 
+                      -logAnalyticsWorkspaceName ${{ variables.logAnalyticsWorkspaceName }}
+                    deploymentMode: Incremental
+
+                - task: SqlAzureDacpacDeployment@1
+                  displayName: "Deploy SQL database DACPAC artifact to Azure"
+                  inputs:
+                    azureSubscription: "${{ variables.envDevOpsServiceConnection }}"
+                    authenticationType: 'servicePrincipal'
+                    ServerName: "$(serverName).database.windows.net"
+                    DatabaseName: "${{ variables.sqldatabasename }}"
+                    deployType: 'DacpacTask'
+                    deploymentAction: 'Publish'
+                    DacpacFile: '$(Pipeline.Workspace)/sqldacpacartifact/denicestbank.dacpac'
+
+                # - task: AzureKeyVault@2
+                #   inputs:
+                #     azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
+                #     KeyVaultName: '${{ variables.keyVaultName }}'
+                #     SecretsFilter: 'sql-password'  # The name of the secret to retrieve
+                #   displayName: 'Fetch SQL Password'
+
+                # - task: PowerShell@2
+                #   inputs:
+                #     targetType: 'inline'
+                #     script: |
+                #       $serverName = "$(serverName).database.windows.net"
+                #       $databaseName = "${{ variables.sqldatabasename }}"
+                #       $sqlUsername = "${{ variables.sqlUsername }}"
+                #       $sqlPassword = "$(SQL_PASSWORD)"
+
+                #       $sqlScriptsPath = "$(Pipeline.Workspace)/sqlseedartifact"
+                #       $sqlFiles = Get-ChildItem -Path $sqlScriptsPath -Filter *.sql
+
+                #       foreach ($sqlFile in $sqlFiles) {
+                #           Write-Host "Executing SQL script: $($sqlFile.Name)"
+                #           $sqlScriptContent = Get-Content -Path $sqlFile.FullName
+                #           $connectionString = "Server=tcp:$serverName;Database=$databaseName;User ID=$sqlUsername;Password=$sqlPassword;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+                #           sqlcmd -S $serverName -d $databaseName -U $sqlUsername -P $sqlPassword -Q "$sqlScriptContent"
+                #       }
+                #   displayName: 'Execute SQL Scripts'
+                #   continueOnError: true  # Set this to true if you want the pipeline to continue even if some SQL scripts fail

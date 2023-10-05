@@ -1,0 +1,35 @@
+<Project Sdk="MSBuild.Sdk.SqlProj/2.6.1">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <SqlServerVersion>SqlAzure</SqlServerVersion>
+  <ProduceReferenceAssembly>false</ProduceReferenceAssembly> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include all your .sql scripts here. For example: -->
+    <!-- <Compile Include="**\*.sql" /> -->
+    <Compile Include="Tables\Borrower.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Loan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Person.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\PersonToLoan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Role.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Transact.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+
+    <Compile Include="Seed\setup_roles.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,29 @@
+done:
+create ava tenant and devops project
+create github repo
+figure out database model
+create database
+
+todo:
+create api
+    - add validators - interest < 1
+xunit for unit tests
+    - write tests
+monitor for logs (dashboards, alerts)
+azure resources:
+- sql database
+    - created: yes
+    - deployment via cicd - yes
+    - bicep: ish, linux limit
+- app service plan
+    - created: yes
+    - deployment via cicd - yes
+        - add owasp task
+    - bicep: no
+- keyvault (cicd + bicep)
+    - deployment via cicd - no - intentional
+    - created: yes
+- azure function that triggers once an hour to add transactions, cron job
+    - deployment via cicd - no
+    - created: no
+    - bicep: no
