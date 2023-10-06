@@ -2,9 +2,6 @@ parameters:
 - name: environments
   type: object
   default: ['d']
-- name: funcAppName
-  type: string
-  default: dnb-transactgenerator-d-02
 - name: should_dependency_check
   type: boolean
   default: false
@@ -13,7 +10,6 @@ trigger:
   branches:
     include:
       - develop
-      - feature/funcapp-transact
 
 pr: none
 
@@ -96,6 +92,6 @@ stages:
                 displayName: 'Azure Function App Deploy'
                 inputs:
                   azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
-                  appName: '${{ parameters.funcAppName}}' 
+                  appName: '${{ variables.funcAppName}}' 
                   package: '$(Pipeline.Workspace)/funcapp/*.zip'
 
