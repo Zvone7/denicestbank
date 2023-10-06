@@ -44,7 +44,7 @@ stages:
       - task: FileTransform@1
         displayName: 'Update appsettings.json environment properties'
         inputs:
-          folderPath: '$(Pipeline.Workspace)/funcapp/*.zip'
+          folderPath: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
           targetFiles: '**/appsettings.json'
           fileType: json
 
