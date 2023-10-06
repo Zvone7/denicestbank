@@ -80,6 +80,9 @@ stages:
   - stage: Deploy
     displayName: Deploy stage
     dependsOn: Build
+    variables: 
+      - template: ../variables/vars.yml
+      - template: ../variables/vars-${{ env }}.yml
     jobs:
     - deployment: Deploy
       displayName: Deploy job
