@@ -43,9 +43,10 @@ stages:
       displayName: Publish
       inputs:
         command: 'publish'
-        projects: 'transactgenerator/transactgenerator.csproj'
+        projects: 'transactgenerator.csproj'
         arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
         zipAfterPublish: True
+      workingDirectory: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
 
     - task: PublishPipelineArtifact@1
       displayName: 'Publish artifact to pipeline'
