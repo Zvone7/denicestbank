@@ -48,7 +48,7 @@ namespace transactgenerator
             log.LogInformation($"TenantId: {adSecrets.TenantId.Substring(0, 3)}");
             log.LogInformation($"TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
             log.LogInformation($"TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
-            log.LogInformation($"Domain: {adSecrets.PortalDomain.Substring(0, 3)}");
+            log.LogInformation($"Domain: {adSecrets.PortalDomain}");
 
 
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
