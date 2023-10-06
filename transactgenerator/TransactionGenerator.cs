@@ -16,7 +16,13 @@ namespace transactgenerator
     public class TransactionGenerator
     {
         [FunctionName("TransactionGenerator")]
-        public async Task Run([TimerTrigger("* 0 * * * *")] TimerInfo myTimer, ILogger log, ExecutionContext context)
+        public async Task Run([TimerTrigger(
+#if DEBUG
+                scheduleExpression:"* * * * * *",
+#else
+                scheduleExpression:"0 */5 * * * *",
+#endif
+                RunOnStartup = true)] TimerInfo myTimer, ILogger log, ExecutionContext context)
         {
 
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
