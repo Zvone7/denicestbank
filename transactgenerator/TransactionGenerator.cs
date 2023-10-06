@@ -35,7 +35,7 @@ namespace transactgenerator
                 Instance = config["azure-instance"],
                 TenantId = config["azure-tenant-id"],
                 PortalAppId = config["portal-appreg-id"],
-                PortalDomain = config["portal-domain"],
+                PortalDomain = config["portal-appservice-domain"],
                 TgAppId = config["transact-generator-appreg-id"],
                 TgSecret = config["transact-generator-secret"],
             };
@@ -44,7 +44,7 @@ namespace transactgenerator
             {
                 log.LogInformation("AdSecrets are null");
             }
-            
+
             log.LogInformation($"TenantId: {adSecrets.TenantId.Substring(0, 3)}");
             log.LogInformation($"TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
             log.LogInformation($"TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
@@ -101,18 +101,15 @@ namespace transactgenerator
 
     public class AzureAdSecrets
     {
-        [JsonProperty("azure-instance")] public string Instance { get; set; }
+        public string Instance { get; set; }
 
-        [JsonProperty("azure-tenant-id")] public string TenantId { get; set; }
+        public string TenantId { get; set; }
 
-        [JsonProperty("portal-appreg-id")] public string PortalAppId { get; set; }
-        [JsonProperty("portal-domain")]
+        public string PortalAppId { get; set; }
         public string PortalDomain { get; set; }
 
-        [JsonProperty("transact-generator-appreg-id")]
         public string TgAppId { get; set; }
 
-        [JsonProperty("transact-generator-secret")]
         public string TgSecret { get; set; }
     }
     public class Transact
