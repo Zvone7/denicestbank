@@ -25,10 +25,10 @@ namespace transactgenerator
             appSettingsFilePath = "appsettings.local.json";
 #endif
 
-            PrintAllFilesInDirectory();
+            PrintAllFilesInDirectory(log);
             
             string jsonData = File.ReadAllText(appSettingsFilePath);
-            log.LogInformation($"Found and loaded appsettings.json");
+            log.LogInformation($"Found and loaded appsettings.json:", jsonData);
             
             var adSecrets = JsonConvert.DeserializeObject<AzureAdSecrets>(jsonData);
             
@@ -78,7 +78,7 @@ namespace transactgenerator
                 }
             }
         }
-        public void PrintAllFilesInDirectory()
+        public void PrintAllFilesInDirectory(ILogger log)
         {
             try
             {
@@ -88,20 +88,20 @@ namespace transactgenerator
                 string[] files = Directory.GetFiles(currentDirectory);
 
                 // Display the list of files
-                Console.WriteLine("Files in the current directory:");
+                log.LogInformation("Files in the current directory:");
 
                 foreach (string file in files)
                 {
-                    Console.WriteLine(file);
+                    log.LogInformation(file);
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("Access to the directory is not authorized.");
+                log.LogInformation("Access to the directory is not authorized.");
             }
             catch (DirectoryNotFoundException)
             {
-                Console.WriteLine("The directory does not exist.");
+                log.LogInformation("The directory does not exist.");
             }
         }
         
