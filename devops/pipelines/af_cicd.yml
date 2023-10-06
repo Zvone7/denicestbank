@@ -43,8 +43,7 @@ stages:
       displayName: Publish
       inputs:
         command: 'publish'
-        projects: '${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
-        arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+        arguments: '--configuration Release --output $(build.artifactstagingdirectory) ${{ variables.portalApiSolution }}/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
         zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
