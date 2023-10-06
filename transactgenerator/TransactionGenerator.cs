@@ -25,9 +25,19 @@ namespace transactgenerator
             appSettingsFilePath = "appsettings.local.json";
 #endif
 
+            PrintAllFilesInDirectory();
+            
             string jsonData = File.ReadAllText(appSettingsFilePath);
+            log.LogInformation($"Found and loaded appsettings.json");
             
             var adSecrets = JsonConvert.DeserializeObject<AzureAdSecrets>(jsonData);
+            
+            log.LogInformation("*** All Aad properties loaded"); 
+            log.LogInformation($"***_ TenantId: {adSecrets.TenantId.Substring(0, 3)}");
+            log.LogInformation($"***_ TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
+            log.LogInformation($"***_ TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
+            log.LogInformation($"***_ PortalAppId: {adSecrets.PortalAppId.Substring(0, 3)}");
+
             
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
                 .Create(adSecrets.TgAppId)
@@ -68,6 +78,31 @@ namespace transactgenerator
                 }
             }
         }
+        public void PrintAllFilesInDirectory()
+        {
+            try
+            {
+                // Get a list of all files in the current directory
+                string[] files = Directory.GetFiles(currentDirectory);
+
+                // Display the list of files
+                Console.WriteLine("Files in the current directory:");
+
+                foreach (string file in files)
+                {
+                    Console.WriteLine(file);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("Access to the directory is not authorized.");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine("The directory does not exist.");
+            }
+        }
+        
     }
 
 
