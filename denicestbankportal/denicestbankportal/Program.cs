@@ -73,7 +73,7 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
         logger.LogInformation("*** Attempting to load all Aad properties");
 
         var azureAdSection = builder.Configuration.GetSection("AzureAd");
-        var domain = builder.Configuration["portal-domain"];
+        var domain = builder.Configuration["ad-domain"];
         var instance = builder.Configuration["azure-instance"];
         var tenantId = builder.Configuration["azure-tenant-id"];
         var appClientId = builder.Configuration["portal-appreg-id"];
