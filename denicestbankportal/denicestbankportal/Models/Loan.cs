@@ -9,6 +9,7 @@ public class Loan
     public decimal Interest { get; set; }
     public decimal LoanTotalAmount { get; set; }
     public bool IsApproved { get; set; }
+    public String Purpose { get; set; }
     public Loan()
     {
 
@@ -29,6 +30,7 @@ public class Loan
         Interest = l.Interest;
         LoanTotalAmount = CalculateLoanTotalAmount();
         IsApproved = false;
+        Purpose = l.Purpose;
     }
 
     private decimal CalculateLoanTotalAmount()
@@ -47,6 +49,7 @@ public class LoanBm
 {
     public decimal LoanBaseAmount { get; set; }
     public decimal Interest { get; set; }
+    public String Purpose { get; set; }
 }
 
 public class LoanVm
@@ -58,5 +61,6 @@ public class LoanVm
     public decimal Interest { get; set; }
     public decimal LoanTotalAmount { get; set; }
     public bool IsApproved { get; set; }
+    public String Purpose { get; set; }
     
 }

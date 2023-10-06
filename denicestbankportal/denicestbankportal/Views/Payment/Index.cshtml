@@ -1,0 +1,91 @@
+﻿@{
+    ViewData["Title"] = "Loans";
+}
+
+
+<div class="text-center">
+    <h1>View payments:</h1>
+
+
+    <div id="paymentInfo" style="display:none;">
+        <div id="paymentDetails"></div>
+    </div>
+
+    <div>
+        <label for="pageIndex">Page:</label>
+        <input type="number" id="pageIndex" name="pageIndex" value="1" min="1">
+        <button type="button" onclick="getPaymentPage($('#pageIndex').val())">Get Page</button>
+    </div>
+
+    <div>
+        <button type="button" onclick="generatePayments()">Generate payments</button>
+    </div>
+
+</div>
+
+
+<script>
+    function displayPayments(response) {
+        var detailsHtml =
+            "<table class='table'><thead><tr>" +
+            "<th>Transact #</th>" +
+            "<th>Person</th>" +
+            "<th>Loan</th>" +
+            "<th>Payment UTC</th>" +
+            "<th>Amount</th>" +
+            "</tr></thead><tbody>";
+        for (var i = 0; i < response.length; i++) {
+            var transaction = response[i];
+            var paymentDate = new Date(transaction.updateDatetimeUtc);
+            detailsHtml += "<tr>";
+            detailsHtml += "<td>" + (i + 1) + "</td>";
+            detailsHtml += "<td>" + transaction.personFullName + "</td>";
+            detailsHtml += "<td>" + transaction.loanPurpose + "</td>";
+            detailsHtml += "<td>" + paymentDate.toLocaleString('no-NO') + "</td>";
+            detailsHtml += "<td>" + transaction.amount.toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
+            detailsHtml += "</tr>";
+        }
+        detailsHtml += "</tbody></table>";
+        $("#paymentDetails").html(detailsHtml);
+        $("#paymentInfo").show();
+    }
+    function getPaymentPage(pageIndex) {
+        $.ajax({
+            type: "GET",
+            url: "/api/payment/payments?pageIndex=" + pageIndex,
+            contentType: "application/json",
+            success: function (response) {
+                console.log("success: got payments page " + pageIndex)
+                if (response.length > 0) {
+                    console.log(response);
+                    displayPayments(response);
+                }
+                else {
+                    console.log("But no payments made yet :(")
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("fail request:", status, error)
+            }
+        });
+    }
+
+    function generatePayments() {
+        console.log("generating payments..")
+        $.ajax({
+            type: "POST",
+            url: "/api/payment/generate",
+            contentType: "application/json",
+            success: function (response) {
+                console.log("generatepayments - success")
+            },
+            error: function (xhr, status, error) {
+                console.log("fail request:", status, error)
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        getPaymentPage(1);
+    });
+</script>

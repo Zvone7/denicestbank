@@ -24,5 +24,8 @@
         <Content Update="Views\**\*.cshtml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Content Update="Views\Payment\Index.cshtml">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 </Project>

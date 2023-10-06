@@ -21,18 +21,34 @@
                     console.log("get all loans - success")
                     if (response.length > 0) {
                         console.log(response);
-                        var loanDetailsHtml = "<table class='table'><thead><tr><th>Loan #</th><th>Loan Base Amount</th><th>Loan Total Amount</th><th>Days Left to Pay</th><th>Interest</th><th>Approved</th><th>Persons</th><th>Action</th></tr></thead><tbody>";
+                        var loanDetailsHtml = "<table class='table'><thead><tr>" +
+                            "<th>Loan #</th>" +
+                            "<th>Purpose</th>" +
+                            "<th>Base Amount</th>" +
+                            "<th>Total Amount</th>" +
+                            "<th>Total Paid</th>" +
+                            "<th>Percent paid</th>" +
+                            "<th>Due UTC</th>" +
+                            "<th>Interest</th>" +
+                            "<th>Approved</th>" +
+                            "<th>Person(s)</th>" +
+                            "<th>Action</th>" +
+                            "</tr></thead><tbody>";
                         for (var i = 0; i < response.length; i++) {
                             var loan = response[i].loan;
+                            var loanTotalReturned = response[i].loanTotalReturned;
                             var startDate = new Date(loan.startDatetimeUtc);
                             var durationInDays = loan.durationInDays;
-                            var today = new Date();
-                            var daysLeft = Math.ceil((startDate.getTime() + (durationInDays * 24 * 60 * 60 * 1000) - today.getTime()) / (1000 * 60 * 60 * 24));
+                            var dueDate = new Date(startDate.getTime() + (durationInDays * 24 * 60 * 60 * 1000));
+                            var percentagePaidOff = ((loanTotalReturned / loan.loanTotalAmount) * 100).toFixed(2);
                             loanDetailsHtml += "<tr>";
                             loanDetailsHtml += "<td>" + (i + 1) + "</td>";
+                            loanDetailsHtml += "<td>" + loan.purpose + "</td>";
                             loanDetailsHtml += "<td>" + loan.loanBaseAmount.toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
                             loanDetailsHtml += "<td>" + (loan.loanTotalAmount).toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
-                            loanDetailsHtml += "<td>" + daysLeft + "</td>";
+                            loanDetailsHtml += "<td>" + (loanTotalReturned).toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
+                            loanDetailsHtml += "<td>" + percentagePaidOff + "%</td>";
+                            loanDetailsHtml += "<td>" + dueDate.toLocaleDateString('no-NO') + "</td>";
                             loanDetailsHtml += "<td>" + (loan.interest * 100).toFixed(2) + "%</td>";
                             loanDetailsHtml += "<td>" + (loan.isApproved ? "Yes" : "No") + "</td>";
                             loanDetailsHtml += "<td>";

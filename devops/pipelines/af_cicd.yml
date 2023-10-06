@@ -1,0 +1,97 @@
+parameters:
+- name: environments
+  type: object
+  default: ['d']
+- name: should_dependency_check
+  type: boolean
+  default: false
+
+trigger: 
+  branches:
+    include:
+      - develop
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+- ${{ each env in parameters.environments }}:
+  - stage: Build
+    displayName: Build stage
+    variables: 
+      - template: ../variables/vars.yml
+      - template: ../variables/vars-${{ env }}.yml
+    jobs:
+    - job: Build
+      displayName: Build job
+      steps:
+
+      - task: AzureKeyVault@2
+        displayName: 'Fetch secrets from Key Vault'
+        inputs:
+          azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+          KeyVaultName: ${{ variables.keyVaultName }}
+          SecretsFilter: '*'
+          runAsPreJob: true
+
+      - task: FileTransform@1
+        displayName: 'Update secrets.json environment properties'
+        inputs:
+          folderPath: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          targetFiles: '**/secrets.json'
+          fileType: json
+
+      - task: UseDotNet@2
+        inputs:
+          displayName: 'Use .NET 6.0.x SDK'
+          packageType: 'sdk'
+          version: 6.0.x
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Build'
+        inputs:
+          command: 'build'
+          projects: '${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
+          arguments: "--configuration Release"
+
+      - task: DotNetCoreCLI@2
+        displayName: Publish
+        inputs:
+          command: 'publish'
+          projects: 'transactgenerator'
+          arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+          zipAfterPublish: true
+          workingDirectory: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          publishWebProjects: false
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish artifact to pipeline'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'funcapp'
+
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Build
+    variables: 
+      - template: ../variables/vars.yml
+      - template: ../variables/vars-${{ env }}.yml
+    jobs:
+    - deployment: Deploy
+      displayName: Deploy job
+      environment: env_${{ env }}
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+
+              - task: AzureFunctionApp@1
+                displayName: 'Azure Function App Deploy'
+                inputs:
+                  azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
+                  appName: '${{ variables.funcAppName}}' 
+                  package: '$(Pipeline.Workspace)/funcapp/*.zip'
+

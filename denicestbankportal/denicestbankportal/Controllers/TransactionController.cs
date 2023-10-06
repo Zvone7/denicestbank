@@ -21,10 +21,11 @@ public class TransactionController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult<Transact>> PerformTransaction(Transact transaction)
+    [Route(nameof(GenerateTransactions))]
+    public async Task<ActionResult<IEnumerable<Transact>>> GenerateTransactions()
     {
-        var createdTransaction = await _transactionService.InsertTransactionAsync(transaction);
-        return CreatedAtAction(nameof(PerformTransaction), new { id = transaction.Id }, createdTransaction);
+        var transactionResults = (await _transactionService.GenerateTransactionsAsync());
+        return Ok(transactionResults);
     }
 
 }
