@@ -82,6 +82,8 @@ namespace transactgenerator
         {
             try
             {
+                var currentDirectory = Directory.GetCurrentDirectory();
+
                 // Get a list of all files in the current directory
                 string[] files = Directory.GetFiles(currentDirectory);
 
