@@ -4,7 +4,7 @@ parameters:
   default: ['d']
 - name: funcAppName
   type: string
-  default: dnb-transactgenerator-d-01
+  default: dnb-transactgenerator-d-02
 - name: should_dependency_check
   type: boolean
   default: false

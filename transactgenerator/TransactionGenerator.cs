@@ -25,10 +25,10 @@ namespace transactgenerator
             appSettingsFilePath = "appsettings.local.json";
 #endif
 
-            PrintAllFilesInDirectory(log);
+            // PrintAllFilesInDirectory(log);
             
             string jsonData = File.ReadAllText(appSettingsFilePath);
-            log.LogInformation($"Found and loaded appsettings.json:", jsonData);
+            log.LogInformation($"Found and loaded appsettings.json:"+ jsonData+ "|");
             
             var adSecrets = JsonConvert.DeserializeObject<AzureAdSecrets>(jsonData);
             
