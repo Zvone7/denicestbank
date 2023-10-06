@@ -18,4 +18,4 @@ variables:
   webAppName: dnb-portal-d-01
 
   # funcapp
-  funcAppName: dnb-transactgenerator-d-01
+  funcAppName: dnb-transactgenerator-d-02
