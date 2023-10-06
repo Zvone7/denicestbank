@@ -20,7 +20,7 @@ namespace transactgenerator
 #if DEBUG
                 scheduleExpression:"* * * * * *",
 #else
-                scheduleExpression:"0 */5 * * * *",
+                scheduleExpression:"0 */45 * * * *",
 #endif
                 RunOnStartup = true)] TimerInfo myTimer, ILogger log, ExecutionContext context)
         {
