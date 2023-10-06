@@ -42,10 +42,10 @@ stages:
           runAsPreJob: true
 
       - task: FileTransform@1
-        displayName: 'Update appsettings.json environment properties'
+        displayName: 'Update secrets.json environment properties'
         inputs:
           folderPath: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
-          targetFiles: '**/appsettings.json'
+          targetFiles: '**/secrets.json'
           fileType: json
 
       - task: UseDotNet@2

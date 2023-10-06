@@ -20,42 +20,44 @@ namespace transactgenerator
 
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            var appSettingsFilePath = "appsettings.json";
+            var appSettingsFilePath = "secrets.json";
 #if DEBUG
-            appSettingsFilePath = "appsettings.local.json";
+            appSettingsFilePath = "secrets.local.json";
 #endif
 
             // PrintAllFilesInDirectory(log);
-            
+
             string jsonData = File.ReadAllText(appSettingsFilePath);
-            log.LogInformation($"Found and loaded appsettings.json:"+ jsonData+ "|");
-            
+            log.LogInformation($"Found and loaded secrets.json:" + jsonData + "|");
+
             var adSecrets = JsonConvert.DeserializeObject<AzureAdSecrets>(jsonData);
-            
-            log.LogInformation("*** All Aad properties loaded"); 
+
+            if (adSecrets == null) { log.LogInformation("AdSecrets are null"); }
+
+            log.LogInformation("*** All Aad properties loaded");
             log.LogInformation($"***_ TenantId: {adSecrets.TenantId.Substring(0, 3)}");
             log.LogInformation($"***_ TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
             log.LogInformation($"***_ TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
             log.LogInformation($"***_ PortalAppId: {adSecrets.PortalAppId.Substring(0, 3)}");
 
-            
+
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
                 .Create(adSecrets.TgAppId)
                 .WithClientSecret(adSecrets.TgSecret)
                 .WithAuthority(new Uri($"https://login.microsoftonline.com/{adSecrets.TenantId}"))
                 .Build();
-            
+
             string[] scopes = new string[] { $"api://{adSecrets.PortalAppId}/.default" }; // Replace with your target API scope
-            
+
             AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsync();
-            
+
             if (result != null)
             {
                 string accessToken = result.AccessToken;
-            
+
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            
+
                 HttpResponseMessage response = await client.PostAsync($"https://{adSecrets.PortalDomain}/api/transaction/GenerateTransactions", null);
                 if (response.IsSuccessStatusCode)
                 {
@@ -104,7 +106,7 @@ namespace transactgenerator
                 log.LogInformation("The directory does not exist.");
             }
         }
-        
+
     }
 
 
@@ -133,4 +135,3 @@ namespace transactgenerator
         public decimal Amount { get; set; }
     }
 }
-        
