@@ -10,8 +10,14 @@
 		<None Remove="appsettings.Development.json" />
 		<None Remove="appsettings.json" />
 		<None Remove="secrets.json" />
+		<None Remove="secrets.local.json" />
 	</ItemGroup>
 	<ItemGroup>
+		<Content Include="secrets.local.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+		  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 		<Content Include="secrets.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

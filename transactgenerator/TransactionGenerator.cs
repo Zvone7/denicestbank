@@ -16,20 +16,17 @@ namespace transactgenerator
     public class TransactionGenerator
     {
         [FunctionName("TransactionGenerator")]
-        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer, ILogger log, ExecutionContext context)
+        public async Task Run([TimerTrigger("*/10 * * * * *")] TimerInfo myTimer, ILogger log, ExecutionContext context)
         {
 
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-//             var appSettingsFilePath = "secrets.json";
-// #if DEBUG
-//             appSettingsFilePath = "secrets.local.json";
-// #endif
-
             var config = new ConfigurationBuilder()
                 .SetBasePath(context.FunctionAppDirectory)
                 .AddJsonFile("secrets.json")
+#if DEBUG
                 .AddJsonFile("secrets.local.json", optional: true, reloadOnChange: true)
+#endif
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -42,20 +39,16 @@ namespace transactgenerator
                 TgAppId = config["transact-generator-appreg-id"],
                 TgSecret = config["transact-generator-secret"],
             };
-            // PrintAllFilesInDirectory(log);
 
-            // string jsonData = File.ReadAllText(appSettingsFilePath);
-            // log.LogInformation($"Found and loaded secrets.json:" + jsonData + "|");
-
-            // var adSecrets = JsonConvert.DeserializeObject<AzureAdSecrets>(jsonData);
-
-            if (String.IsNullOrEmpty(adSecrets.TgSecret)) { log.LogInformation("AdSecrets are null"); }
+            if (String.IsNullOrEmpty(adSecrets.TgSecret))
+            {
+                log.LogInformation("AdSecrets are null");
+            }
 
             log.LogInformation("*** All Aad properties loaded");
             log.LogInformation($"***_ TenantId: {adSecrets.TenantId.Substring(0, 3)}");
             log.LogInformation($"***_ TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
             log.LogInformation($"***_ TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
-            log.LogInformation($"***_ PortalAppId: {adSecrets.PortalAppId.Substring(0, 3)}");
 
 
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
@@ -64,7 +57,8 @@ namespace transactgenerator
                 .WithAuthority(new Uri($"https://login.microsoftonline.com/{adSecrets.TenantId}"))
                 .Build();
 
-            string[] scopes = new string[] { $"api://{adSecrets.PortalAppId}/.default" }; // Replace with your target API scope
+            string[] scopes = new string[]
+                { $"api://{adSecrets.PortalAppId}/.default" }; // Replace with your target API scope
 
             AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsync();
 
@@ -75,55 +69,31 @@ namespace transactgenerator
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-                HttpResponseMessage response = await client.PostAsync($"https://{adSecrets.PortalDomain}/api/transaction/GenerateTransactions", null);
+                HttpResponseMessage response =
+                    await client.PostAsync($"https://{adSecrets.PortalDomain}/api/transaction/GenerateTransactions",
+                        null);
                 if (response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
                     var transactions = JsonConvert.DeserializeObject<List<Transact>>(content);
                     if (!transactions.Any())
                     {
-                        Console.WriteLine("No transactions performed.");
+                        log.LogInformation("No transactions performed.");
                     }
+
                     foreach (var transaction in transactions)
                     {
-                        Console.WriteLine($"{transaction.PersonId} -> {transaction.LoanId}: {transaction.Amount}");
+                        log.LogInformation($"{transaction.PersonId} -> {transaction.LoanId}: {transaction.Amount}");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Exception on request." +
-                                      $"Status code {response.StatusCode}" +
-                                      $"Content:{response.Content}");
+                    log.LogInformation($"Exception on request." +
+                                       $"Status code {response.StatusCode}" +
+                                       $"Content:{response.Content}");
                 }
             }
         }
-        public void PrintAllFilesInDirectory(ILogger log)
-        {
-            try
-            {
-                var currentDirectory = Directory.GetCurrentDirectory();
-
-                // Get a list of all files in the current directory
-                string[] files = Directory.GetFiles(currentDirectory);
-
-                // Display the list of files
-                log.LogInformation("Files in the current directory:");
-
-                foreach (string file in files)
-                {
-                    log.LogInformation(file);
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                log.LogInformation("Access to the directory is not authorized.");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                log.LogInformation("The directory does not exist.");
-            }
-        }
-
     }
 
 
