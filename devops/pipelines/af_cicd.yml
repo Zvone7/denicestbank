@@ -36,7 +36,7 @@ stages:
       displayName: 'Build'
       inputs:
         command: 'build'
-        projects: '${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}/${{ variables.funcAppProj }}.csproj'
+        projects: '${{ variables.portalApiSolution }}/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
         arguments: "--configuration Release"
 
     - task: DotNetCoreCLI@2
