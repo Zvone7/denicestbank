@@ -16,7 +16,7 @@ namespace transactgenerator
     public class TransactionGenerator
     {
         [FunctionName("TransactionGenerator")]
-        public async Task Run([TimerTrigger("0 * * * * *")] TimerInfo myTimer, ILogger log, ExecutionContext context)
+        public async Task Run([TimerTrigger("* 0 * * * *")] TimerInfo myTimer, ILogger log, ExecutionContext context)
         {
 
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
@@ -44,11 +44,11 @@ namespace transactgenerator
             {
                 log.LogInformation("AdSecrets are null");
             }
-
-            log.LogInformation("*** All Aad properties loaded");
-            log.LogInformation($"***_ TenantId: {adSecrets.TenantId.Substring(0, 3)}");
-            log.LogInformation($"***_ TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
-            log.LogInformation($"***_ TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
+            
+            log.LogInformation($"TenantId: {adSecrets.TenantId.Substring(0, 3)}");
+            log.LogInformation($"TgAppId: {adSecrets.TgAppId.Substring(0, 3)}");
+            log.LogInformation($"TgSecret: {adSecrets.TgSecret.Substring(0, 3)}");
+            log.LogInformation($"Domain: {adSecrets.PortalDomain.Substring(0, 3)}");
 
 
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
@@ -61,6 +61,7 @@ namespace transactgenerator
                 { $"api://{adSecrets.PortalAppId}/.default" }; // Replace with your target API scope
 
             AuthenticationResult result = await app.AcquireTokenForClient(scopes).ExecuteAsync();
+            log.LogInformation($"Received token.");
 
             if (result != null)
             {
@@ -68,6 +69,7 @@ namespace transactgenerator
 
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                log.LogInformation($"Making request to generate transactions.");
 
                 HttpResponseMessage response =
                     await client.PostAsync($"https://{adSecrets.PortalDomain}/api/transaction/GenerateTransactions",
