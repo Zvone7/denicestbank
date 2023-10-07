@@ -44,7 +44,6 @@ stages:
         projects: 'resource/webapp/**/*.csproj'
         arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
 
-    # Zips and publish the build artifact to the artifact staging directory
     - task: DotNetCoreCLI@2
       displayName: Publish
       inputs:
@@ -60,26 +59,26 @@ stages:
         targetPath: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'app'
 
-    # - task: dependency-check-build-task@6
-    #   displayName: Execute Owasp Scan
-    #   condition: ${{parameters.should_dependency_check}}
-    #   inputs:
-    #     projectName: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
-    #     scanPath: '$(Build.SourcesDirectory)/resource/webapp/Portal/**/bin/Release/net*/*.dll'
-    #     suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
-    #     failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
-    #     format: 'HTML, JSON, JUNIT'
-    #     enableExperimental: true
+    - task: dependency-check-build-task@6
+      displayName: Execute Owasp Scan
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        projectName: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
+        scanPath: '$(Build.SourcesDirectory)/resource/webapp/Portal/**/bin/Release/net*/*.dll'
+        # suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
+        failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
+        format: 'HTML, JSON, JUNIT'
+        enableExperimental: true
 
-    # - task: PublishTestResults@2
-    #   displayName: Publish Owasp Dependency Check Test Results
-    #   condition: ${{parameters.should_dependency_check}}
-    #   inputs:
-    #     testResultsFormat: 'JUnit'
-    #     testResultsFiles: '**/*-junit.xml'
-    #     searchFolder: '$(Common.TestResultsDirectory)'
-    #     testRunTitle: 'Dependency Check'
-    #     buildConfiguration: 'Release'
+    - task: PublishTestResults@2
+      displayName: Publish Owasp Dependency Check Test Results
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
+        searchFolder: '$(Common.TestResultsDirectory)'
+        testRunTitle: 'Dependency Check'
+        buildConfiguration: 'Release'
 
 - ${{ each env in parameters.environments }}:
   - stage: Deploy
