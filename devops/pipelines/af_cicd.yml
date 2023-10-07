@@ -61,7 +61,7 @@ stages:
         displayName: Publish
         inputs:
           command: 'publish'
-          projects: 'TransactGenerator'
+          projects: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
           zipAfterPublish: true
           workingDirectory: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
