@@ -34,14 +34,14 @@ stages:
       displayName: 'Build'
       inputs:
         command: 'build'
-        projects: 'Portal/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
+        projects: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
         arguments: "--configuration Release"
 
     - task: DotNetCoreCLI@2
       displayName: 'Test'
       inputs:
         command: test
-        projects: '**/*.csproj'
+        projects: 'resource/webapp/**/*.csproj'
         arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
 
     # Zips and publish the build artifact to the artifact staging directory
@@ -51,6 +51,7 @@ stages:
         command: 'publish'
         publishWebProjects: true
         arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+        workingDirectory: $(Build.SourcesDirectory)/resource/webapp/${{ Portal }}
         zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
@@ -63,8 +64,8 @@ stages:
     #   displayName: Execute Owasp Scan
     #   condition: ${{parameters.should_dependency_check}}
     #   inputs:
-    #     projectName: 'Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
-    #     scanPath: '$(Build.SourcesDirectory)/**/bin/Release/net*/*.dll'
+    #     projectName: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
+    #     scanPath: '$(Build.SourcesDirectory)/resource/webapp/Portal/**/bin/Release/net*/*.dll'
     #     suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
     #     failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
     #     format: 'HTML, JSON, JUNIT'
