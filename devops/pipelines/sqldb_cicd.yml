@@ -42,7 +42,7 @@ stages:
           artifact: sqlarmartifact
 
         # Build SQL project
-        - script: dotnet build resource/sqldb/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}.csproj --configuration release
+        - script: dotnet build resource/sqldb/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }} --configuration release
           displayName: Build SQL Database Project
 
         # Publish the dacpac as artifact
