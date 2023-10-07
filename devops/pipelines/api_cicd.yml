@@ -51,7 +51,7 @@ stages:
         command: 'publish'
         publishWebProjects: true
         arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
-        workingDirectory: $(Build.SourcesDirectory)/resource/webapp/${{ Portal }}
+        workingDirectory: $(Build.SourcesDirectory)/resource/webapp/Portal
         zipAfterPublish: True
 
     - task: PublishPipelineArtifact@1
