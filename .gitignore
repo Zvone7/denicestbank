@@ -400,3 +400,7 @@ FodyWeavers.xsd
 
 appsettings.local.json
 secrets.local.json
+
+# owasp scan
+**/dependency-check-report.html
+**/dependency-check-log.txt
