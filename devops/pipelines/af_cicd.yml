@@ -94,4 +94,3 @@ stages:
                   azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
                   appName: '${{ variables.funcAppName}}' 
                   package: '$(Pipeline.Workspace)/funcapp/*.zip'
-
