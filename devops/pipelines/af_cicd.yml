@@ -54,7 +54,7 @@ stages:
         displayName: 'Build'
         inputs:
           command: 'build'
-          projects: '${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
+          projects: 'resource/azurefunc/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
           arguments: "--configuration Release"
 
       - task: DotNetCoreCLI@2
@@ -64,7 +64,7 @@ stages:
           projects: 'transactgenerator'
           arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
           zipAfterPublish: true
-          workingDirectory: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          workingDirectory: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           publishWebProjects: false
 
       - task: PublishPipelineArtifact@1
