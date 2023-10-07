@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 
-namespace transactgenerator
+namespace TransactGenerator
 {
     public class TransactionGenerator
     {

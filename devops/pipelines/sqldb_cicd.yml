@@ -36,17 +36,6 @@ stages:
               az bicep build --file $(Build.SourcesDirectory)/devops/iac/sqldb.bicep
           displayName: 'Build Bicep to ARM Template'
 
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/Seed' # Adjust the path to your Seed directory
-            Contents: '**/*.sql'
-            TargetFolder: '$(Build.ArtifactStagingDirectory)/SQLScripts'
-
-        - task: PublishPipelineArtifact@1
-          inputs:
-            targetPath: '$(Build.ArtifactStagingDirectory)/SQLScripts'
-            artifact: 'sqlseedartifact'
-
         # Publish the sqldb.json as artifact
         - publish: $(Build.SourcesDirectory)/devops/iac/sqldb.json
           displayName: Publish json artifact
@@ -57,7 +46,7 @@ stages:
           displayName: Build SQL Database Project
 
         # Publish the dacpac as artifact
-        - publish: $(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/bin/Release/net7.0/${{ variables.sqlDbSolution }}.dacpac
+        - publish: $(Build.SourcesDirectory)/resource/sqldb/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/bin/Release/net7.0/${{ variables.sqlDbSolution }}.dacpac
           displayName: Publish dacpac artifact
           artifact: sqldacpacartifact
 

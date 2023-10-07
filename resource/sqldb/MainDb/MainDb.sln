@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "denicestbanksqldb", "denicestbanksqldb\denicestbanksqldb.csproj", "{71C05202-1FFB-45F0-A71C-BF64E49F94D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainDb", "mainDb\MainDb.csproj", "{71C05202-1FFB-45F0-A71C-BF64E49F94D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

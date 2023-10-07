@@ -40,7 +40,7 @@ stages:
       - task: FileTransform@1
         displayName: 'Update secrets.json environment properties'
         inputs:
-          folderPath: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          folderPath: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           targetFiles: '**/secrets.json'
           fileType: json
 
@@ -61,7 +61,7 @@ stages:
         displayName: Publish
         inputs:
           command: 'publish'
-          projects: 'transactgenerator'
+          projects: 'TransactGenerator'
           arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
           zipAfterPublish: true
           workingDirectory: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
