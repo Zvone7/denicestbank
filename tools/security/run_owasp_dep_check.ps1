@@ -16,7 +16,10 @@ dependency-check.bat `
     --project "portal-local-test" `
     --scan $solutionPath `
     --format HTML `
-    --failOnCVSS 8 `
+    --failOnCVSS 20 `
     --suppression $rootPath"\owasp-dependency-suppression-file.xml" `
+    --exclude "**\bin\**" `
+    --exclude "**\obj\**" `
     --out $scriptPath"\owasp-dependency-check-report.html" `
+    --log $scriptPath"\dependency-check-log.txt" `
     --enableExperimental

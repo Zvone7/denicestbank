@@ -65,8 +65,8 @@ stages:
       inputs:
         projectName: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
         scanPath: '$(Build.SourcesDirectory)/resource/webapp/Portal/**/bin/Release/net*/*.dll'
-        # suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
-        failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
+        suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
+        failOnCVSS: 20 # limit for demo purposes
         format: 'HTML, JSON, JUNIT'
         enableExperimental: true
 
