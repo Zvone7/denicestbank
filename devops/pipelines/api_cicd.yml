@@ -34,7 +34,7 @@ stages:
       displayName: 'Build'
       inputs:
         command: 'build'
-        projects: '${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
+        projects: 'Portal/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
         arguments: "--configuration Release"
 
     - task: DotNetCoreCLI@2
@@ -63,7 +63,7 @@ stages:
     #   displayName: Execute Owasp Scan
     #   condition: ${{parameters.should_dependency_check}}
     #   inputs:
-    #     projectName: 'resource/webapp/MetadataStore.API'
+    #     projectName: 'Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
     #     scanPath: '$(Build.SourcesDirectory)/**/bin/Release/net*/*.dll'
     #     suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
     #     failOnCVSS: 8 # Fail the build if vulnerabilities with CVSS score higher than 8 are discovered
