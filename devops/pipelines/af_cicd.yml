@@ -54,7 +54,7 @@ stages:
         displayName: 'Build'
         inputs:
           command: 'build'
-          projects: 'resource/azurefunc/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
+          projects: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
           arguments: "--configuration Release"
 
       - task: DotNetCoreCLI@2
