@@ -10,10 +10,10 @@
 Clear-Host
 $scriptPath = (Get-Location);
 $rootPath =(get-item $scriptPath).parent.parent.FullName
-$solutionPath = $rootPath+"\denicestbankportal"
+$solutionPath = $rootPath+"\resource\webapp\Portal"
 Write-Output $solutionPath
 dependency-check.bat `
-    --project "denicestbankportal-local-test" `
+    --project "portal-local-test" `
     --scan $solutionPath `
     --format HTML `
     --failOnCVSS 8 `
