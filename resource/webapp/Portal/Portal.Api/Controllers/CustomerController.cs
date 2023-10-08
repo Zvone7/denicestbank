@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 
 namespace Portal.Api.Controllers;
 
@@ -10,9 +10,9 @@ namespace Portal.Api.Controllers;
 [Route("api/[controller]")]
 public class CustomerController : Controller
 {
-    private readonly PersonService _personService_;
+    private readonly IPersonService _personService_;
 
-    public CustomerController(PersonService personService)
+    public CustomerController(IPersonService personService)
     {
         _personService_ = personService;
     }

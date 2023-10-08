@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Models;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Api.Controllers;
@@ -11,10 +10,10 @@ namespace Portal.Api.Controllers;
 [Route("api/[controller]")]
 public class PaymentController : Controller
 {
-    private readonly PersonService _personService_;
-    private readonly TransactionService _transactionService_;
+    private readonly IPersonService _personService_;
+    private readonly ITransactionService _transactionService_;
 
-    public PaymentController(PersonService personService, TransactionService transactionService)
+    public PaymentController(IPersonService personService, ITransactionService transactionService)
     {
         _personService_ = personService;
         _transactionService_ = transactionService;

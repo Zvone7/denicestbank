@@ -1,6 +1,5 @@
 using System.Security.Claims;
-using Portal.Api.Models;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Api.Controllers;
@@ -8,7 +7,7 @@ namespace Portal.Api.Controllers;
 public static class ControllerHelper
 {
     public static async Task TryCreatePersonFromAadUser(
-        PersonService personService, 
+        IPersonService personService, 
         ClaimsPrincipal user)
     {
         try

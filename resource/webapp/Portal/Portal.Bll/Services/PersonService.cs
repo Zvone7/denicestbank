@@ -1,19 +1,20 @@
 using Microsoft.Extensions.Logging;
-using Portal.Bll.Generation;
-using Portal.Dbl.Providers;
+using Portal.Core.Generation;
+using Portal.Core.Providers;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Bll.Services;
 
-public class PersonService
+public class PersonService : IPersonService
 {
-    private readonly PersonProvider _personProvider_;
-    private readonly RandomGenerator _randomGenerator_;
+    private readonly IPersonProvider _personProvider_;
+    private readonly IRandomGenerator _randomGenerator_;
     private readonly ILogger<PersonService> _logger_;
 
     public PersonService(
-        PersonProvider personProvider,
-        RandomGenerator randomGenerator,
+        IPersonProvider personProvider,
+        IRandomGenerator randomGenerator,
         ILogger<PersonService> logger
     )
     {

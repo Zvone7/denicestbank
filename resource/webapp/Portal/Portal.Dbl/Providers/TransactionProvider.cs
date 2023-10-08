@@ -1,11 +1,12 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
+using Portal.Core.Providers;
 using Portal.Models;
 
 namespace Portal.Dbl.Providers;
 
-public class TransactionProvider
+public class TransactionProvider : ITransactionProvider
 {
     private readonly String _connectionString_;
 
@@ -23,15 +24,6 @@ public class TransactionProvider
             FROM Transact
             GROUP BY LoanId;");
     }
-    public async Task<LoanLatestState> GetLoanLatestState(Guid loanId)
-    {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
-        dbConnection.Open();
-        return await dbConnection.QueryFirstOrDefaultAsync<LoanLatestState>($@"
-            SELECT LoanId, SUM(Amount) AS TotalTransacted
-            FROM Transact
-            Where LoanId = @loanId;", new { loanId = loanId });
-    }
 
     public async Task<TransactDto> InsertTransactionAsync(TransactDto transaction)
     {
@@ -46,9 +38,9 @@ public class TransactionProvider
         transaction.Id = id;
         return transaction;
     }
+    
     public async Task<IEnumerable<PaymentVm>> GetAllEnrinchedTransactions()
     {
-
         using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
         var query = @"

@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Models;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Api.Controllers
@@ -12,10 +11,10 @@ namespace Portal.Api.Controllers
     [Route("api/[controller]")]
     public class LoanController : Controller
     {
-        private readonly LoanService _loanService_;
+        private readonly ILoanService _loanService_;
         private readonly ILogger<LoanController> _logger_;
 
-        public LoanController(LoanService loanService, ILogger<LoanController> logger)
+        public LoanController(ILoanService loanService, ILogger<LoanController> logger)
         {
             _loanService_ = loanService ?? throw new ArgumentNullException(nameof(loanService));
             _logger_ = logger;

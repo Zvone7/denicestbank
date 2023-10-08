@@ -8,7 +8,7 @@ public static class LoanExtensions
     public static bool IsPastDue(this LoanDto loanDto, DateTime? datetimeUtcNow = null)
     {
         var utcNow = datetimeUtcNow ?? DateTime.UtcNow;
-        return utcNow < utcNow.AddDays(loanDto.DurationInDays);
+        return utcNow > utcNow.AddDays(loanDto.DurationInDays);
     }
     public static bool ShouldAcceptMorePayments(this LoanDto loanDto, decimal paidOffAmount, decimal paidOffLimitPercent = LOAN_PAID_OFF_LIMIT)
     {

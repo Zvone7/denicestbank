@@ -1,22 +1,24 @@
 using Microsoft.Extensions.Logging;
-using Portal.Bll.Generation;
 using Portal.Core.Extensions;
-using Portal.Dbl.Providers;
+using Portal.Core.Generation;
+using Portal.Core.Providers;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Bll.Services
 {
-    public class TransactionService
+
+    public class TransactionService : ITransactionService
     {
-        private readonly TransactionProvider _transactionProvider_;
-        private readonly LoanProvider _loanProvider_;
-        private readonly RandomGenerator _randomGenerator_;
+        private readonly ITransactionProvider _transactionProvider_;
+        private readonly ILoanProvider _loanProvider_;
+        private readonly IRandomGenerator _randomGenerator_;
         private readonly ILogger<TransactionService> _logger_;
 
         public TransactionService(
-            TransactionProvider transactionProvider,
-            LoanProvider loanProvider,
-            RandomGenerator randomGenerator,
+            ITransactionProvider transactionProvider,
+            ILoanProvider loanProvider,
+            IRandomGenerator randomGenerator,
             ILogger<TransactionService> logger
         )
         {
