@@ -1,22 +1,23 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
+using Portal.Core.Providers;
 using Portal.Models;
 
 namespace Portal.Dbl.Providers;
 
-public class LoanProvider
+public class LoanProvider : ILoanProvider
 {
-    private readonly string _connectionString;
+    private readonly string _connectionString_;
 
     public LoanProvider(string connectionString)
     {
-        _connectionString = connectionString;
+        _connectionString_ = connectionString;
     }
 
     public async Task<IEnumerable<LoanWithPersons>> GetAllLoansWithPersonsAsync()
     {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
         var loans = await dbConnection.QueryAsync<LoanDto>("SELECT * FROM Loan");
 
@@ -47,7 +48,7 @@ public class LoanProvider
 
     public async Task<LoanWithPersons> GetLoanWithPersonsByIdAsync(Guid loanId)
     {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
         var loan = await dbConnection.QueryFirstOrDefaultAsync<LoanDto>("SELECT * FROM Loan where Id = @LoanId", new { LoanId = loanId });
 
@@ -77,7 +78,7 @@ public class LoanProvider
 
     public async Task<IEnumerable<LoanWithPersons>> GetLoansByPersonIdAsync(Guid personId)
     {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
 
         var loanIds = await dbConnection.QueryAsync<Guid>(
@@ -107,7 +108,7 @@ public class LoanProvider
 
     public async Task<LoanDto> CreateLoanAsync(LoanDto loanDto, IEnumerable<Guid> personIds)
     {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
         using var transaction = dbConnection.BeginTransaction();
         try
@@ -151,7 +152,7 @@ public class LoanProvider
 
     public async Task<Boolean> SetLoanToApprovedAsync(Guid loanId)
     {
-        using IDbConnection dbConnection = new SqlConnection(_connectionString);
+        using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
         await dbConnection.ExecuteAsync(
             "UPDATE Loan SET IsApproved = 1 " +

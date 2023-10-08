@@ -4,29 +4,13 @@ using Microsoft.Identity.Web;
 using Portal.Api;
 using Portal.Bll.Generation;
 using Portal.Bll.Services;
+using Portal.Core.Generation;
+using Portal.Core.Providers;
+using Portal.Core.Services;
 using Portal.Dbl.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#if DEBUG
-builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
-#endif
-var connectionString = builder.Configuration["ConnectionStrings:DbConnectionString"];
-
-Console.WriteLine("*** Application started");
-
-builder.Services.AddSingleton(_ => new RandomGenerator());
-builder.Services.AddSingleton(_ => new PersonProvider(connectionString));
-builder.Services.AddSingleton(_ => new LoanProvider(connectionString));
-builder.Services.AddSingleton(_ => new TransactionProvider(connectionString));
-
-builder.Services.AddSingleton<PersonService>();
-builder.Services.AddSingleton<LoanService>();
-builder.Services.AddSingleton<TransactionService>();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
 
 var loggerFactory = LoggerFactory.Create(c =>
 {
@@ -35,6 +19,33 @@ var loggerFactory = LoggerFactory.Create(c =>
 });
 
 var logger = loggerFactory.CreateLogger<Program>();
+
+#if DEBUG
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+#endif
+var connectionString = builder.Configuration["ConnectionStrings:DbConnectionString"];
+
+if (String.IsNullOrWhiteSpace(connectionString))
+{
+    logger.LogError("ConnectionString to Database can't be empty");
+    throw new ArgumentException("Missing value for DbConnectionString");
+}
+
+logger.LogInformation("*** Application started");
+
+builder.Services.AddSingleton<IRandomGenerator>(_ => new RandomGenerator());
+builder.Services.AddSingleton<IPersonProvider>(_ => new PersonProvider(connectionString));
+builder.Services.AddSingleton<ILoanProvider>(_ => new LoanProvider(connectionString));
+builder.Services.AddSingleton<ITransactionProvider>(_ => new TransactionProvider(connectionString));
+
+builder.Services.AddSingleton<IPersonService, PersonService>();
+builder.Services.AddSingleton<ILoanService, LoanService>();
+builder.Services.AddSingleton<ITransactionService, TransactionService>();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 logger.LogInformation("*** DI initialized.");
 
 AddAzureAuthenticationAndAuthorization(logger);
@@ -85,7 +96,7 @@ void AddAzureAuthenticationAndAuthorization(ILogger logger)
         appClientId.ThrowIfNullOrWhiteSpace(nameof(appClientId));
         callbackPath.ThrowIfNullOrWhiteSpace(nameof(callbackPath));
 
-        logger.LogInformation("*** All Aad properties loaded"); 
+        logger.LogInformation("*** All Aad properties loaded");
         logger.LogInformation($"***_ Domain: {domain.Substring(0, 3)}");
         logger.LogInformation($"***_ TenantId: {tenantId.Substring(0, 3)}");
         logger.LogInformation($"***_ AppClientId: {appClientId.Substring(0, 3)}");

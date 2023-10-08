@@ -35,7 +35,7 @@
                             "<th>Action</th>" +
                             "</tr></thead><tbody>";
                         for (var i = 0; i < response.length; i++) {
-                            var loan = response[i].loan;
+                            var loan = response[i].loanDto;
                             var loanTotalReturned = response[i].loanTotalReturned;
                             var startDate = new Date(loan.startDatetimeUtc);
                             var durationInDays = loan.durationInDays;

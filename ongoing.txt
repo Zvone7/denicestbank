@@ -27,3 +27,10 @@ azure resources:
     - deployment via cicd - no
     - created: no
     - bicep: no
+
+
+
+possible improvements:
+    - more explicit logging on actions
+    - database logging on loan approval
+    - automapper

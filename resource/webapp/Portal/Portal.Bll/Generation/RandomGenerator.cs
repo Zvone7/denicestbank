@@ -1,6 +1,8 @@
+using Portal.Core.Generation;
+
 namespace Portal.Bll.Generation;
 
-public class RandomGenerator
+public class RandomGenerator : IRandomGenerator
 {
 
     private readonly Random _random_ = new();

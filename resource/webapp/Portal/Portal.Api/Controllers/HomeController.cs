@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Api.Models;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 
 namespace Portal.Api.Controllers;
 
@@ -11,9 +11,9 @@ namespace Portal.Api.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger_;
-    private readonly PersonService _personService_;
+    private readonly IPersonService _personService_;
 
-    public HomeController(ILogger<HomeController> logger, PersonService personService)
+    public HomeController(ILogger<HomeController> logger, IPersonService personService)
     {
         _logger_ = logger;
         _personService_ = personService;

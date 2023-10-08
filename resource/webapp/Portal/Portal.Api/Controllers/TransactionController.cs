@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Models;
-using Portal.Bll.Services;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Api.Controllers;
@@ -12,9 +11,9 @@ namespace Portal.Api.Controllers;
 [Route("api/[controller]")]
 public class TransactionController : Controller
 {
-    private readonly TransactionService _transactionService;
+    private readonly ITransactionService _transactionService;
 
-    public TransactionController(TransactionService transactionService)
+    public TransactionController(ITransactionService transactionService)
     {
         _transactionService = transactionService;
     }

@@ -1,20 +1,21 @@
 using Microsoft.Extensions.Logging;
-using Portal.Dbl.Providers;
+using Portal.Core.Providers;
+using Portal.Core.Services;
 using Portal.Models;
 
 namespace Portal.Bll.Services;
 
-public class LoanService
+public class LoanService : ILoanService
 {
-    private readonly LoanProvider _loanProvider_;
-    private readonly PersonService _personService_;
-    private readonly TransactionProvider _transactionProvider_;
+    private readonly ILoanProvider _loanProvider_;
+    private readonly IPersonService _personService_;
+    private readonly ITransactionProvider _transactionProvider_;
     private readonly ILogger<LoanService> _logger_;
 
     public LoanService(
-        LoanProvider loanProvider,
-        PersonService personService,
-        TransactionProvider transactionProvider,
+        ILoanProvider loanProvider,
+        IPersonService personService,
+        ITransactionProvider transactionProvider,
         ILogger<LoanService> logger
     )
     {

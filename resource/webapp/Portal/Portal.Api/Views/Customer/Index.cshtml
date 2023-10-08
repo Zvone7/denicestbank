@@ -58,7 +58,7 @@
                             "</thead>" +
                             "<tbody>";
                         for (var i = 0; i < response.length; i++) {
-                            var loan = response[i].loan;
+                            var loan = response[i].loanDto;
                             var startDate = new Date(loan.startDatetimeUtc);
                             var durationInDays = loan.durationInDays;
                             var dueDate = new Date(startDate.getTime() + (durationInDays * 24 * 60 * 60 * 1000));
