@@ -1,12 +1,12 @@
 variables:
   envDevOpsServiceConnection: devops-arm-d-02
-  sqlDbSolution: denicestbanksqldb  
+  sqlDbSolution: MainDb  
   envRegionCode: swc
   envRegionName: swedencentral
 
   sqlUsername: sql_admin
   dotnetSdkVersion: '7.x'
-  portalApiSolution: denicestbankportal
-  funcAppProj: transactgenerator
+  portalApiSolution: Portal.Api
+  funcAppProj: TransactGenerator
 
   connectionStringSecretName: dnb-sql-conn-string

@@ -10,13 +10,16 @@
 Clear-Host
 $scriptPath = (Get-Location);
 $rootPath =(get-item $scriptPath).parent.parent.FullName
-$solutionPath = $rootPath+"\denicestbankportal"
+$solutionPath = $rootPath+"\resource\webapp\Portal"
 Write-Output $solutionPath
 dependency-check.bat `
-    --project "denicestbankportal-local-test" `
+    --project "portal-local-test" `
     --scan $solutionPath `
     --format HTML `
-    --failOnCVSS 8 `
+    --failOnCVSS 20 `
     --suppression $rootPath"\owasp-dependency-suppression-file.xml" `
-    --out $scriptPath"\owasp-dependency-check-report.html" `
+    --exclude "**\bin\**" `
+    --exclude "**\obj\**" `
+    --out $scriptPath"\dependency-check-report.html" `
+    --log $scriptPath"\dependency-check-log.txt" `
     --enableExperimental

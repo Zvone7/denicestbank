@@ -36,30 +36,22 @@ stages:
               az bicep build --file $(Build.SourcesDirectory)/devops/iac/sqldb.bicep
           displayName: 'Build Bicep to ARM Template'
 
-        - task: CopyFiles@2
-          inputs:
-            SourceFolder: '$(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/Seed' # Adjust the path to your Seed directory
-            Contents: '**/*.sql'
-            TargetFolder: '$(Build.ArtifactStagingDirectory)/SQLScripts'
-
-        - task: PublishPipelineArtifact@1
-          inputs:
-            targetPath: '$(Build.ArtifactStagingDirectory)/SQLScripts'
-            artifact: 'sqlseedartifact'
-
-        # Publish the sqldb.json as artifact
         - publish: $(Build.SourcesDirectory)/devops/iac/sqldb.json
           displayName: Publish json artifact
           artifact: sqlarmartifact
 
-        # Build SQL project
-        - script: dotnet build ${{ variables.sqlDbSolution }} --configuration release
-          displayName: Build SQL Database Project
+        - task: DotNetCoreCLI@2
+          displayName: 'Build SQL Database Project'
+          inputs:
+            command: 'build'
+            projects: '$(Build.SourcesDirectory)/resource/sqldb/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}'
+            arguments: "--configuration Release"
 
-        # Publish the dacpac as artifact
-        - publish: $(Build.SourcesDirectory)/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/bin/Release/net7.0/${{ variables.sqlDbSolution }}.dacpac
-          displayName: Publish dacpac artifact
-          artifact: sqldacpacartifact
+        - task: PublishPipelineArtifact@1
+          displayName: 'Publish dacpac artifact'
+          inputs:
+            targetPath: $(Build.SourcesDirectory)/resource/sqldb/${{ variables.sqlDbSolution }}/${{ variables.sqlDbSolution }}/bin/Release/net7.0/${{ variables.sqlDbSolution }}.dacpac
+            artifact: 'sqldacpacartifact'
 
 - ${{ each env in parameters.environments }}:
   - stage: deploy_${{ env }}
@@ -78,12 +70,10 @@ stages:
               steps:
                 - checkout: none
 
-                # Download the sqlarmartifact
                 - download: current
                   displayName: download sqlarmartifact
                   artifact: sqlarmartifact
 
-                # Download the sqldacpacartifact
                 - download: current
                   displayName: download sqldacpacartifact
                   artifact: sqldacpacartifact

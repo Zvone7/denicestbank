@@ -40,7 +40,7 @@ stages:
       - task: FileTransform@1
         displayName: 'Update secrets.json environment properties'
         inputs:
-          folderPath: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          folderPath: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           targetFiles: '**/secrets.json'
           fileType: json
 
@@ -54,17 +54,17 @@ stages:
         displayName: 'Build'
         inputs:
           command: 'build'
-          projects: '${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
+          projects: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}/${{ variables.funcAppProj }}.csproj'
           arguments: "--configuration Release"
 
       - task: DotNetCoreCLI@2
         displayName: Publish
         inputs:
           command: 'publish'
-          projects: 'transactgenerator'
+          projects: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
           zipAfterPublish: true
-          workingDirectory: '$(Build.SourcesDirectory)/${{ variables.funcAppProj }}'
+          workingDirectory: '$(Build.SourcesDirectory)/resource/azurefunc/${{ variables.funcAppProj }}'
           publishWebProjects: false
 
       - task: PublishPipelineArtifact@1
@@ -94,4 +94,3 @@ stages:
                   azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
                   appName: '${{ variables.funcAppName}}' 
                   package: '$(Pipeline.Workspace)/funcapp/*.zip'
-

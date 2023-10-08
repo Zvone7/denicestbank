@@ -1,0 +1,23 @@
+<Project Sdk="MSBuild.Sdk.SqlProj/2.6.1">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <SqlServerVersion>SqlAzure</SqlServerVersion>
+  <ProduceReferenceAssembly>false</ProduceReferenceAssembly> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Tables\Loan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Person.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\PersonToLoan.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Tables\Transact.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+</Project>
