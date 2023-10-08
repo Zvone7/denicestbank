@@ -7,7 +7,7 @@ public class RandomGenerator : IRandomGenerator
 
     private readonly Random _random_ = new();
 
-    public String GenerateRandomSsn()
+    public String GenerateSsn()
     {
         var areaNumber = _random_.Next(1, 899);
         var groupNumber = _random_.Next(1, 99);

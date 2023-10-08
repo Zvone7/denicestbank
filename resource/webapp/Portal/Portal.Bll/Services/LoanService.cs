@@ -48,8 +48,7 @@ public class LoanService : ILoanService
             return new List<LoanOverview>();
         }
     }
-
-
+    
     public async Task<IEnumerable<LoanOverview>> GetAllLoansByPersonIdAsync(Guid personId)
     {
         try

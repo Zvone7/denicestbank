@@ -62,7 +62,7 @@ public class PersonService : IPersonService
                 Email = personAadInfo.Email,
                 FullName = personAadInfo.FullName,
                 Role = assignRole,
-                Ssn = _randomGenerator_.GenerateRandomSsn()
+                Ssn = _randomGenerator_.GenerateSsn()
 
             };
             await _personProvider_.CreatePersonAsync(personDb);
