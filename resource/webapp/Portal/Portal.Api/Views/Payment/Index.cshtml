@@ -56,9 +56,9 @@
             contentType: "application/json",
             success: function (response) {
                 console.log("success: got payments page " + pageIndex)
+                displayPayments(response);
                 if (response.length > 0) {
                     console.log(response);
-                    displayPayments(response);
                 }
                 else {
                     console.log("But no payments made yet :(")

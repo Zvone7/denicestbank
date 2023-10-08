@@ -1,7 +1,8 @@
-using Portal.Api.Database;
-using Portal.Api.Models;
+using Microsoft.Extensions.Logging;
+using Portal.Dbl.Providers;
+using Portal.Models;
 
-namespace Portal.Api.Logic;
+namespace Portal.Bll.Services;
 
 public class LoanService
 {
@@ -11,10 +12,11 @@ public class LoanService
     private readonly ILogger<LoanService> _logger_;
 
     public LoanService(
-        LoanProvider loanProvider, 
+        LoanProvider loanProvider,
         PersonService personService,
         TransactionProvider transactionProvider,
-        ILogger<LoanService> logger)
+        ILogger<LoanService> logger
+    )
     {
         _loanProvider_ = loanProvider;
         _personService_ = personService;
@@ -33,7 +35,7 @@ public class LoanService
 
             foreach (var lwp in loansWithPersons)
             {
-                var lls = loansLatestStates.ToList().FirstOrDefault(x => x.LoanId.Equals(lwp.Loan.Id));
+                var lls = loansLatestStates.ToList().FirstOrDefault(x => x.LoanId.Equals(lwp.LoanDto.Id));
                 results.Add(new LoanOverview(lwp, lls == null ? 0 : (Int32)lls.TotalTransacted));
             }
 
@@ -45,8 +47,8 @@ public class LoanService
             return new List<LoanOverview>();
         }
     }
-    
-    
+
+
     public async Task<IEnumerable<LoanOverview>> GetAllLoansByPersonIdAsync(Guid personId)
     {
         try
@@ -58,7 +60,7 @@ public class LoanService
 
             foreach (var lwp in loansWithPersons)
             {
-                var lls = loansLatestStates.ToList().FirstOrDefault(x => x.LoanId.Equals(lwp.Loan.Id));
+                var lls = loansLatestStates.ToList().FirstOrDefault(x => x.LoanId.Equals(lwp.LoanDto.Id));
                 results.Add(new LoanOverview(lwp, lls == null ? 0 : (Int32)lls.TotalTransacted));
             }
 
@@ -70,13 +72,13 @@ public class LoanService
             return new List<LoanOverview>();
         }
     }
-    
+
     public async Task<Boolean> ApproveLoanAsync(Guid loanId)
     {
         try
         {
             var loan = await _loanProvider_.GetLoanWithPersonsByIdAsync(loanId);
-            if (loan.Loan != null)
+            if (loan.LoanDto != null)
             {
                 return await _loanProvider_.SetLoanToApprovedAsync(loanId);
             }
@@ -89,22 +91,22 @@ public class LoanService
         }
     }
 
-    public async Task<Loan?> ApplyForLoanAsync(LoanApplyObj loanApplyObj)
+    public async Task<LoanDto?> ApplyForLoanAsync(LoanApplication loanApplication)
     {
         try
         {
-            var persons = new List<Person>();
-            foreach (var personId in loanApplyObj.Guids)
+            var persons = new List<PersonDto>();
+            foreach (var personId in loanApplication.Guids)
             {
                 var person = await _personService_.GetPersonByIdAsync(personId);
-                if(person!=null) persons.Add(person);
+                if (person != null) persons.Add(person);
             }
-            
-            var loanDb = new Loan();
-            loanDb.Init(loanApplyObj.Loan);
-        
+
+            var loanDb = new LoanDto();
+            loanDb.Init(loanApplication.Loan);
+
             // Add the loan to the provider
-            return await _loanProvider_.CreateLoanAsync(loanDb, persons.Select(x=>x.Id));
+            return await _loanProvider_.CreateLoanAsync(loanDb, persons.Select(x => x.Id));
         }
         catch (Exception e)
         {

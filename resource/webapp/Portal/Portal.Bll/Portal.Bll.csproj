@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Portal.Dbl\Portal.Dbl.csproj" />
+      <ProjectReference Include="..\Portal.Models\Portal.Models.csproj" />
+    </ItemGroup>
+
 </Project>

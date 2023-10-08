@@ -1,6 +1,6 @@
-namespace Portal.Api.Models;
+namespace Portal.Models;
 
-public class Transact
+public class TransactDto
 {
     public Guid Id { get; set; }
     public Guid PersonId { get; set; }

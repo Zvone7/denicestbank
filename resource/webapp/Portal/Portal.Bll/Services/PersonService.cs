@@ -1,25 +1,28 @@
-using Portal.Api.Database;
-using Portal.Api.Models;
+using Microsoft.Extensions.Logging;
+using Portal.Bll.Generation;
+using Portal.Dbl.Providers;
+using Portal.Models;
 
-namespace Portal.Api.Logic;
+namespace Portal.Bll.Services;
 
 public class PersonService
 {
     private readonly PersonProvider _personProvider_;
+    private readonly RandomGenerator _randomGenerator_;
     private readonly ILogger<PersonService> _logger_;
 
-    public PersonService(PersonProvider personProvider, ILogger<PersonService> logger)
+    public PersonService(
+        PersonProvider personProvider,
+        RandomGenerator randomGenerator,
+        ILogger<PersonService> logger
+    )
     {
         _personProvider_ = personProvider ?? throw new ArgumentNullException(nameof(personProvider));
+        _randomGenerator_ = randomGenerator;
         _logger_ = logger;
     }
 
-    public async Task<IEnumerable<Person>> GetAllPersonsAsync()
-    {
-        return await _personProvider_.GetAllPersonsAsync();
-    }
-
-    public async Task<Person?> GetPersonByIdAsync(Guid personId)
+    public async Task<PersonDto?> GetPersonByIdAsync(Guid personId)
     {
         try
         {
@@ -34,12 +37,7 @@ public class PersonService
         }
     }
 
-    public async Task<Person> CreatePersonAsync(Person person)
-    {
-        return await _personProvider_.CreatePersonAsync(person);
-    }
-
-    public async Task CreatePersonIfItDoesntExistAsync(PersonAadInfo personAadInfo)
+    public async Task TryCreatePerson(PersonAadInfo personAadInfo)
     {
         try
         {
@@ -57,13 +55,13 @@ public class PersonService
                 var email when email.Contains("customer") => "customer",
                 _ => "admin"
             };
-            var personDb = new Person()
+            var personDb = new PersonDto()
             {
                 Id = personAadInfo.Id,
                 Email = personAadInfo.Email,
                 FullName = personAadInfo.FullName,
                 Role = assignRole,
-                Ssn = GenerateRandomSsn()
+                Ssn = _randomGenerator_.GenerateRandomSsn()
 
             };
             await _personProvider_.CreatePersonAsync(personDb);
@@ -71,26 +69,7 @@ public class PersonService
         }
         catch (Exception e)
         {
-            _logger_.LogError(e, $"Exception on {nameof(CreatePersonIfItDoesntExistAsync)}");
+            _logger_.LogError(e, $"Exception on {nameof(TryCreatePerson)}");
         }
-    }
-
-    // public async Task<Person> UpdatePersonAsync(Person person)
-    // {
-    //     return await _personProvider_.UpdatePersonAsync(person);
-    // }
-
-    // public async Task DeletePersonAsync(Guid id)
-    // {
-    //     await _personProvider_.DeletePersonAsync(id);
-    // }
-    
-    private string GenerateRandomSsn()
-    {
-        var random = new Random();
-        var areaNumber = random.Next(1, 899);
-        var groupNumber = random.Next(1, 99);
-        var serialNumber = random.Next(1, 9999);
-        return $"{areaNumber:D3}-{groupNumber:D2}-{serialNumber:D4}";
     }
 }

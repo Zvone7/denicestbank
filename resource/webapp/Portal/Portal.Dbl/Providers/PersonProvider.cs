@@ -1,9 +1,9 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
-using Portal.Api.Models;
+using Portal.Models;
 
-namespace Portal.Api.Database;
+namespace Portal.Dbl.Providers;
 
 public class PersonProvider
 {
@@ -14,30 +14,30 @@ public class PersonProvider
         _connectionString = connectionString;
     }
 
-    public async Task<IEnumerable<Person>> GetAllPersonsAsync()
+    public async Task<IEnumerable<PersonDto>> GetAllPersonsAsync()
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        return await dbConnection.QueryAsync<Person>("SELECT * FROM Person");
+        return await dbConnection.QueryAsync<PersonDto>("SELECT * FROM Person");
     }
 
-    public async Task<Person> GetPersonByIdAsync(Guid personId)
+    public async Task<PersonDto> GetPersonByIdAsync(Guid personId)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        return await dbConnection.QueryFirstOrDefaultAsync<Person>("SELECT * FROM Person WHERE Id = @Id", new { Id = personId });
+        return await dbConnection.QueryFirstOrDefaultAsync<PersonDto>("SELECT * FROM Person WHERE Id = @Id", new { Id = personId });
     }
 
-    public async Task<Person> CreatePersonAsync(Person person)
+    public async Task<PersonDto> CreatePersonAsync(PersonDto personDto)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
         var query = "INSERT INTO Person (Id, FullName, Email, Role, Ssn) " +
                     "OUTPUT INSERTED.Id " +
                     "VALUES (@Id, @FullName, @Email, @Role, @Ssn)";
-        var id = await dbConnection.ExecuteScalarAsync<Guid>(query, person);
-        person.Id = id;
-        return person;
+        var id = await dbConnection.ExecuteScalarAsync<Guid>(query, personDto);
+        personDto.Id = id;
+        return personDto;
     }
 
     // public async Task<Person> UpdatePersonAsync(Person person)

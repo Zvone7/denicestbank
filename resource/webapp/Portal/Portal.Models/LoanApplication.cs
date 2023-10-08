@@ -1,6 +1,6 @@
-namespace Portal.Api.Models;
+namespace Portal.Models;
 
-public class LoanApplyObj
+public class LoanApplication
 {
     public LoanBm Loan { get; set; }
     public IEnumerable<Guid> Guids { get; set; }

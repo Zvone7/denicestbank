@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Logic;
 using Portal.Api.Models;
+using Portal.Bll.Services;
 
 namespace Portal.Api.Controllers;
 

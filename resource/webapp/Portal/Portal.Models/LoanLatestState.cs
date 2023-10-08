@@ -1,4 +1,4 @@
-namespace Portal.Api.Models;
+namespace Portal.Models;
 
 public class LoanLatestState
 {
