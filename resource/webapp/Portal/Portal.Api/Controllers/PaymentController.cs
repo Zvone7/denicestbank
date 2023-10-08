@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Logic;
 using Portal.Api.Models;
+using Portal.Bll.Services;
+using Portal.Models;
 
 namespace Portal.Api.Controllers;
 
@@ -29,7 +30,7 @@ public class PaymentController : Controller
     [HttpGet]
     [Route("payments")]
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-    public async Task<IEnumerable<Payment>> GetPayments(int pageIndex = 1, int pageSize = 10)
+    public async Task<IEnumerable<PaymentVm>> GetPayments(int pageIndex = 1, int pageSize = 10)
     {
         return await _transactionService_.GetLatestPayments(pageIndex, pageSize);
     }
@@ -38,7 +39,7 @@ public class PaymentController : Controller
     [HttpPost]
     [Route("generate")]
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-    public async Task<IEnumerable<Transact>> GeneratePayments()
+    public async Task<IEnumerable<TransactDto>> GeneratePayments()
     {
         return await _transactionService_.GenerateTransactionsAsync();
     }

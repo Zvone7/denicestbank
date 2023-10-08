@@ -1,9 +1,9 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
-using Portal.Api.Models;
+using Portal.Models;
 
-namespace Portal.Api.Database;
+namespace Portal.Dbl.Providers;
 
 public class TransactionProvider
 {
@@ -33,7 +33,7 @@ public class TransactionProvider
             Where LoanId = @loanId;", new { loanId = loanId });
     }
 
-    public async Task<Transact> InsertTransactionAsync(Transact transaction)
+    public async Task<TransactDto> InsertTransactionAsync(TransactDto transaction)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
@@ -46,7 +46,7 @@ public class TransactionProvider
         transaction.Id = id;
         return transaction;
     }
-    public async Task<IEnumerable<Payment>> GetAllEnrinchedTransactions()
+    public async Task<IEnumerable<PaymentVm>> GetAllEnrinchedTransactions()
     {
 
         using IDbConnection dbConnection = new SqlConnection(_connectionString_);
@@ -66,7 +66,7 @@ public class TransactionProvider
                 inner join Person as p on t.PersonId = p.Id
                 order by t.UpdateDatetimeUtc DESC";
 
-        return await dbConnection.QueryAsync<Payment>(query);
+        return await dbConnection.QueryAsync<PaymentVm>(query);
 
     }
 }

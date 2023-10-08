@@ -1,9 +1,9 @@
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
-using Portal.Api.Models;
+using Portal.Models;
 
-namespace Portal.Api.Database;
+namespace Portal.Dbl.Providers;
 
 public class LoanProvider
 {
@@ -18,7 +18,7 @@ public class LoanProvider
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        var loans = await dbConnection.QueryAsync<Loan>("SELECT * FROM Loan");
+        var loans = await dbConnection.QueryAsync<LoanDto>("SELECT * FROM Loan");
 
         var loansWithPersons = new List<LoanWithPersons>();
         foreach (var loan in loans)
@@ -27,10 +27,10 @@ public class LoanProvider
                 "SELECT PersonId FROM PersonToLoan WHERE LoanId = @LoanId",
                 new { LoanId = loan.Id }
             );
-            var persons = new List<Person>();
+            var persons = new List<PersonDto>();
             foreach (var personId in personIds)
             {
-                var person = await dbConnection.QueryFirstOrDefaultAsync<Person>(
+                var person = await dbConnection.QueryFirstOrDefaultAsync<PersonDto>(
                     "SELECT * FROM Person WHERE Id = @Id",
                     new { Id = personId }
                 );
@@ -39,7 +39,7 @@ public class LoanProvider
                     persons.Add(person);
                 }
             }
-            loansWithPersons.Add(new LoanWithPersons { Loan = loan, Persons = persons });
+            loansWithPersons.Add(new LoanWithPersons { LoanDto = loan, Persons = persons });
         }
 
         return loansWithPersons;
@@ -49,16 +49,16 @@ public class LoanProvider
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
-        var loan = await dbConnection.QueryFirstOrDefaultAsync<Loan>("SELECT * FROM Loan where Id = @LoanId", new { LoanId = loanId });
+        var loan = await dbConnection.QueryFirstOrDefaultAsync<LoanDto>("SELECT * FROM Loan where Id = @LoanId", new { LoanId = loanId });
 
         var personIds = await dbConnection.QueryAsync<Guid>(
             "SELECT PersonId FROM PersonToLoan WHERE LoanId = @LoanId",
             new { LoanId = loanId }
         );
-        var persons = new List<Person>();
+        var persons = new List<PersonDto>();
         foreach (var personId in personIds)
         {
-            var person = await dbConnection.QueryFirstOrDefaultAsync<Person>(
+            var person = await dbConnection.QueryFirstOrDefaultAsync<PersonDto>(
                 "SELECT * FROM Person WHERE Id = @Id",
                 new { Id = personId }
             );
@@ -70,7 +70,7 @@ public class LoanProvider
 
         return new LoanWithPersons()
         {
-            Loan = loan,
+            LoanDto = loan,
             Persons = persons
         };
     }
@@ -87,7 +87,7 @@ public class LoanProvider
         var loans = new List<LoanWithPersons>();
         foreach (var loanId in loanIds)
         {
-            var loan = await dbConnection.QueryFirstOrDefaultAsync<Loan>(
+            var loan = await dbConnection.QueryFirstOrDefaultAsync<LoanDto>(
                 "SELECT * FROM Loan WHERE Id = @Id",
                 new { Id = loanId }
             );
@@ -96,7 +96,7 @@ public class LoanProvider
                 loans.Add(
                     new LoanWithPersons()
                     {
-                        Loan = loan,
+                        LoanDto = loan,
                         Persons = null
                     });
             }
@@ -105,7 +105,7 @@ public class LoanProvider
         return loans;
     }
 
-    public async Task<Loan> CreateLoanAsync(Loan loan, IEnumerable<Guid> personIds)
+    public async Task<LoanDto> CreateLoanAsync(LoanDto loanDto, IEnumerable<Guid> personIds)
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString);
         dbConnection.Open();
@@ -116,12 +116,12 @@ public class LoanProvider
             await dbConnection.ExecuteAsync(
                 "INSERT INTO Loan (LoanBaseAmount, Purpose, DurationInDays, StartDatetimeUtc, Interest, LoanTotalAmount, IsApproved) " +
                 "VALUES (@LoanBaseAmount, @Purpose, @DurationInDays, @StartDatetimeUtc, @Interest, @LoanTotalAmount, @IsApproved)",
-                loan,
+                loanDto,
                 transaction
             );
 
             // Retrieve the newly created loan from the database
-            var createdLoan = await dbConnection.QueryFirstOrDefaultAsync<Loan>(
+            var createdLoan = await dbConnection.QueryFirstOrDefaultAsync<LoanDto>(
                 "SELECT TOP 1 * FROM Loan ORDER BY StartDatetimeUtc DESC",
                 transaction: transaction
             );

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Api.Logic;
 using Portal.Api.Models;
+using Portal.Bll.Services;
+using Portal.Models;
 
 namespace Portal.Api.Controllers
 {
@@ -48,10 +49,10 @@ namespace Portal.Api.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<Loan>> ApplyForLoan(LoanBm loanBm)
+        public async Task<ActionResult<LoanDto>> ApplyForLoan(LoanBm loanBm)
         {
             var aadId = ControllerHelper.ExtractAadId(User);
-            var createdLoan = await _loanService_.ApplyForLoanAsync(new LoanApplyObj() { Loan = loanBm, Guids = new List<Guid>() { aadId } });
+            var createdLoan = await _loanService_.ApplyForLoanAsync(new LoanApplication() { Loan = loanBm, Guids = new List<Guid>() { aadId } });
             return CreatedAtAction(nameof(ApplyForLoan), new { id = createdLoan.Id }, createdLoan);
         }
     }

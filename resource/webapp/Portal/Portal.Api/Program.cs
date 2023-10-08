@@ -2,8 +2,9 @@ using System.Security.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 using Portal.Api;
-using Portal.Api.Database;
-using Portal.Api.Logic;
+using Portal.Bll.Generation;
+using Portal.Bll.Services;
+using Portal.Dbl.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +15,10 @@ var connectionString = builder.Configuration["ConnectionStrings:DbConnectionStri
 
 Console.WriteLine("*** Application started");
 
-builder.Services.AddSingleton(provider => new PersonProvider(connectionString));
-builder.Services.AddSingleton(provider => new LoanProvider(connectionString));
-builder.Services.AddSingleton(provider => new TransactionProvider(connectionString));
+builder.Services.AddSingleton(_ => new RandomGenerator());
+builder.Services.AddSingleton(_ => new PersonProvider(connectionString));
+builder.Services.AddSingleton(_ => new LoanProvider(connectionString));
+builder.Services.AddSingleton(_ => new TransactionProvider(connectionString));
 
 builder.Services.AddSingleton<PersonService>();
 builder.Services.AddSingleton<LoanService>();

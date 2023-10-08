@@ -1,6 +1,6 @@
-namespace Portal.Api.Models;
+namespace Portal.Models;
 
-public class Loan
+public class LoanDto
 {
     public Guid Id { get; set; }
     public decimal LoanBaseAmount { get; set; }
@@ -10,7 +10,7 @@ public class Loan
     public decimal LoanTotalAmount { get; set; }
     public bool IsApproved { get; set; }
     public String Purpose { get; set; }
-    public Loan()
+    public LoanDto()
     {
 
     }
@@ -43,24 +43,4 @@ public class Loan
         }
         return totalAmount;
     }
-}
-
-public class LoanBm
-{
-    public decimal LoanBaseAmount { get; set; }
-    public decimal Interest { get; set; }
-    public String Purpose { get; set; }
-}
-
-public class LoanVm
-{
-    public Guid Id { get; set; }
-    public decimal LoanBaseAmount { get; set; }
-    public DateTime StartDatetimeUtc { get; set; }
-    public Int32 DaysLeftToPay { get; set; }
-    public decimal Interest { get; set; }
-    public decimal LoanTotalAmount { get; set; }
-    public bool IsApproved { get; set; }
-    public String Purpose { get; set; }
-    
 }

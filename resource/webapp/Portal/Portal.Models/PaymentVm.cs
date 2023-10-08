@@ -1,6 +1,6 @@
-namespace Portal.Api.Models;
+namespace Portal.Models;
 
-public class Payment
+public class PaymentVm
 {
     public Guid Id { get; set; }
     public Guid PersonId { get; set; }

@@ -1,6 +1,7 @@
 using System.Security.Claims;
-using Portal.Api.Logic;
 using Portal.Api.Models;
+using Portal.Bll.Services;
+using Portal.Models;
 
 namespace Portal.Api.Controllers;
 
@@ -20,7 +21,7 @@ public static class ControllerHelper
                 Email = email,
                 FullName = user.Claims.Where(c => c.Type == "name").Select(c => c.Value).First()
             };
-            await personService.CreatePersonIfItDoesntExistAsync(personAadInfo);
+            await personService.TryCreatePerson(personAadInfo);
         }
         catch (Exception e)
         {
