@@ -7,6 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>Test.Portal.Bll</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,7 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Portal.Bll\Portal.Bll.csproj" />
-      <ProjectReference Include="..\Test.Portal.Core\Test.Portal.Core.csproj" />
+      <ProjectReference Include="..\Test.Portal.Dbl\Test.Portal.Dbl.csproj" />
     </ItemGroup>
 
 </Project>

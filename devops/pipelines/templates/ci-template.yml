@@ -33,14 +33,14 @@ stages:
       inputs:
         command: test
         projects: 'resource/webapp/**/*.csproj'
-        arguments: '--configuration Release --logger trx --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
+        arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
 
     - task: PublishTestResults@2
       condition: succeededOrFailed()
       displayName: Publish Unit Test Results
       inputs:
-        testResultsFormat: 'VSTest'
-        testResultsFiles: '**/*-TestResults/*.trx'
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
         searchFolder: '$(Common.TestResultsDirectory)'
         testRunTitle: 'Dependency Check'
         buildConfiguration: 'Release'

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Portal.Bll.Generation;
 
-namespace Test.Portal.Bll.Unit.Generation;
+namespace Test.Portal.Bll.Generation;
 
 public class RandomGeneratorTest
 {
