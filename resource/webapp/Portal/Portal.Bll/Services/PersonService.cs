@@ -10,12 +10,12 @@ public class PersonService : IPersonService
 {
     private readonly IPersonProvider _personProvider_;
     private readonly IRandomGenerator _randomGenerator_;
-    private readonly ILogger<PersonService> _logger_;
+    private readonly ILogger<IPersonService> _logger_;
 
     public PersonService(
         IPersonProvider personProvider,
         IRandomGenerator randomGenerator,
-        ILogger<PersonService> logger
+        ILogger<IPersonService> logger
     )
     {
         _personProvider_ = personProvider ?? throw new ArgumentNullException(nameof(personProvider));
@@ -38,7 +38,7 @@ public class PersonService : IPersonService
         }
     }
 
-    public async Task TryCreatePerson(PersonAadInfo personAadInfo)
+    public async Task<PersonDto?> TryCreatePersonAsync(PersonAadInfo personAadInfo)
     {
         try
         {
@@ -46,31 +46,32 @@ public class PersonService : IPersonService
             if (person != null)
             {
                 _logger_.LogInformation($"Person with Id {personAadInfo.Id} already exists. Skipping creation.");
-                return;
+                return null;
             }
             _logger_.LogInformation($"Person with Id {personAadInfo.Id} not found. Creating...");
-
+            
             var assignRole = personAadInfo.Email.ToLowerInvariant() switch
             {
-                var email when email.Contains("adviser") => "adviser",
-                var email when email.Contains("customer") => "customer",
-                _ => "admin"
+                var email when email.Contains("adviser") => PersonRole.adviser,
+                var email when email.Contains("customer") => PersonRole.customer,
+                _ => PersonRole.admin
             };
             var personDb = new PersonDto()
             {
                 Id = personAadInfo.Id,
                 Email = personAadInfo.Email,
                 FullName = personAadInfo.FullName,
-                Role = assignRole,
+                Role = assignRole.ToString(),
                 Ssn = _randomGenerator_.GenerateSsn()
 
             };
-            await _personProvider_.CreatePersonAsync(personDb);
+            return await _personProvider_.CreatePersonAsync(personDb);
 
         }
         catch (Exception e)
         {
-            _logger_.LogError(e, $"Exception on {nameof(TryCreatePerson)}");
+            _logger_.LogError(e, $"Exception on {nameof(TryCreatePersonAsync)}");
+            return null;
         }
     }
 }

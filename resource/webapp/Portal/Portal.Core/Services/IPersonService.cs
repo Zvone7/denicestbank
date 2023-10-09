@@ -5,5 +5,5 @@ namespace Portal.Core.Services;
 public interface IPersonService
 {
     Task<PersonDto?> GetPersonByIdAsync(Guid personId);
-    Task TryCreatePerson(PersonAadInfo personAadInfo);
+    Task<PersonDto?> TryCreatePersonAsync(PersonAadInfo personAadInfo);
 }

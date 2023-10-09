@@ -20,7 +20,7 @@ public static class ControllerHelper
                 Email = email,
                 FullName = user.Claims.Where(c => c.Type == "name").Select(c => c.Value).First()
             };
-            await personService.TryCreatePerson(personAadInfo);
+            await personService.TryCreatePersonAsync(personAadInfo);
         }
         catch (Exception e)
         {

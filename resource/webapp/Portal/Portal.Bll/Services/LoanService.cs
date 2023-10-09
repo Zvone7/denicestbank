@@ -10,13 +10,13 @@ public class LoanService : ILoanService
     private readonly ILoanProvider _loanProvider_;
     private readonly IPersonService _personService_;
     private readonly ITransactionProvider _transactionProvider_;
-    private readonly ILogger<LoanService> _logger_;
+    private readonly ILogger<ILoanService> _logger_;
 
     public LoanService(
         ILoanProvider loanProvider,
         IPersonService personService,
         ITransactionProvider transactionProvider,
-        ILogger<LoanService> logger
+        ILogger<ILoanService> logger
     )
     {
         _loanProvider_ = loanProvider;

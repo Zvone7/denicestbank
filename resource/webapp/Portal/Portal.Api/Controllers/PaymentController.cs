@@ -31,7 +31,7 @@ public class PaymentController : Controller
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
     public async Task<IEnumerable<PaymentVm>> GetPayments(int pageIndex = 1, int pageSize = 10)
     {
-        return await _transactionService_.GetLatestPayments(pageIndex, pageSize);
+        return await _transactionService_.GetLatestPaymentsAsync(pageIndex, pageSize);
     }
 
 

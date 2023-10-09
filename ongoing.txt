@@ -10,6 +10,8 @@ create api
 xunit for unit tests
     - write tests
 monitor for logs (dashboards, alerts)
+solution report: design, dependency graph
+
 azure resources:
 - sql database
     - created: yes
