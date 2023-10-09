@@ -5,10 +5,7 @@ figure out database model
 create database
 
 todo:
-create api
-    - add validators - interest < 1
 monitor for logs (dashboards, alerts)
-solution report: design, dependency graph
 xunit tests for database? database containers?
 
 azure resources:
