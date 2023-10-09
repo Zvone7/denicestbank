@@ -16,16 +16,12 @@ pool:
   vmImage: "ubuntu-latest"
 
 stages:
-- stage: Build
-  displayName: Build stage
 - template: /devops/pipelines/templates/ci-template.yml
   parameters:
     environments: ${{ parameters.environments }}
     should_dependency_check: ${{ parameters.should_dependency_check }}
 
 - ${{ each env in parameters.environments }}:
-  - stage: Deploy
-    displayName: Deploy stage
   - template: /devops/pipelines/templates/cd-template.yml
     parameters:
       env: ${{ env }}
