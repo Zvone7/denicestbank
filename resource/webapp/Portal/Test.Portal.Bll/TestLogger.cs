@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace Test.Portal.Bll.Unit;
+namespace Test.Portal.Bll;
 
 public class TestLogger<T> : ILogger<T>
 {

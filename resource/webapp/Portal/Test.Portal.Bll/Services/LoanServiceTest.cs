@@ -6,7 +6,7 @@ using Portal.Core.Services;
 using Portal.Models;
 using Test.Portal.Core.Extensions;
 
-namespace Test.Portal.Bll.Unit.Services;
+namespace Test.Portal.Bll.Services;
 
 public class LoanServiceTest
 {

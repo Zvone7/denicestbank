@@ -13,22 +13,17 @@ Solution consists of 3 components
 Database is an Azure SQL Database. It consists of following tables with schema.
 
 ### table Person:
-Id - Guid, primary key
-AadId - Guid, Azure Active Directory ID
+AadId - Guid, Primary Key, Azure Active Directory ID
 FullName - string 100
 email - string 100
 role - string 20
 ssn - string 11
 
-### table Borower:
-Id - Guid, primary key
-PersonId - Guid, foreign key to Person
-YearlySalary - decimal number, 5 digits of precision
-CurrentEquity - decimal number, 5 digits of precision
-
 ### table Loan:
 Id - guid, primary key
+Purpose - string
 LoanBaseAmount - decimal number, 5 digits of precision
+DurationInDays - int
 StartDatetimeUtc - datetime2
 Interest - decimalnumber, 5 digits of precision
 LoanTotalAmount - decimalnumber, 5 digits of precision
@@ -42,6 +37,7 @@ LoanId - guid, foreign key to Loan
 ### table Transaction:
 Id - guid, primary key
 PersonId - guid, foreign key to Person
+LoanId - guid, foreign key to Person
 UpdateDatetimeUtc - datetime2
 Amount - decimalnumber, 5 digits of precision
 
