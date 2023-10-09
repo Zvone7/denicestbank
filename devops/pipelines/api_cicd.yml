@@ -44,6 +44,16 @@ stages:
         projects: 'resource/webapp/**/*.csproj'
         arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
 
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      displayName: Publish Owasp Dependency Check Test Results
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
+        searchFolder: '$(Common.TestResultsDirectory)'
+        testRunTitle: 'Dependency Check'
+        buildConfiguration: 'Release'
+
     - task: DotNetCoreCLI@2
       displayName: Publish
       inputs:
