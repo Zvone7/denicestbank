@@ -2,6 +2,6 @@ namespace Portal.Core.Generation;
 
 public interface IRandomGenerator
 {
-    String GenerateRandomSsn();
+    String GenerateSsn();
     decimal GenerateRandomPaymentAmount(decimal totalAmount);
 }

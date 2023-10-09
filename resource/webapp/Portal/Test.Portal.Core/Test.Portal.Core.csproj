@@ -4,8 +4,6 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-
-        <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
@@ -25,8 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Portal.Bll\Portal.Bll.csproj" />
-      <ProjectReference Include="..\Test.Portal.Core\Test.Portal.Core.csproj" />
+      <ProjectReference Include="..\Portal.Core\Portal.Core.csproj" />
     </ItemGroup>
-
 </Project>

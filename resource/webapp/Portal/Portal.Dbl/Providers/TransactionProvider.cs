@@ -29,7 +29,6 @@ public class TransactionProvider : ITransactionProvider
     {
         using IDbConnection dbConnection = new SqlConnection(_connectionString_);
         dbConnection.Open();
-        transaction.UpdateDatetimeUtc = DateTime.UtcNow;
         var query =
             "INSERT INTO Transact (PersonId, LoanId, UpdateDatetimeUtc, Amount) " +
             "OUTPUT INSERTED.Id " +

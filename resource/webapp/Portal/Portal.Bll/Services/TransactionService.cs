@@ -11,19 +11,19 @@ namespace Portal.Bll.Services
     public class TransactionService : ITransactionService
     {
         private readonly ITransactionProvider _transactionProvider_;
-        private readonly ILoanProvider _loanProvider_;
+        private readonly ILoanService _loanService_;
         private readonly IRandomGenerator _randomGenerator_;
-        private readonly ILogger<TransactionService> _logger_;
+        private readonly ILogger<ITransactionService> _logger_;
 
         public TransactionService(
             ITransactionProvider transactionProvider,
-            ILoanProvider loanProvider,
+            ILoanService loanService,
             IRandomGenerator randomGenerator,
-            ILogger<TransactionService> logger
+            ILogger<ITransactionService> logger
         )
         {
             _transactionProvider_ = transactionProvider;
-            _loanProvider_ = loanProvider;
+            _loanService_ = loanService;
             _randomGenerator_ = randomGenerator;
             _logger_ = logger;
         }
@@ -32,19 +32,15 @@ namespace Portal.Bll.Services
         {
             try
             {
-                var loanStates = (await _transactionProvider_.GetAllLoansLatestStates()).ToList();
-                var loansWithPersonsInfos = await _loanProvider_.GetAllLoansWithPersonsAsync();
+                var loansWithPersonsInfos = await _loanService_.GetAllLoansOverviewAsync();
                 var targets = new List<TransactDto>();
                 foreach (var loansWithPersonsInfo in loansWithPersonsInfos)
                 {
                     var loan = loansWithPersonsInfo.LoanDto;
-                    var loanLatestState = loanStates.FirstOrDefault(x => x.LoanId.Equals(loan.Id));
-
                     if (!loan.IsApproved) continue;
                     if (loan.IsPastDue()) continue;
-
-
-                    if (loanLatestState == null || !loan.ShouldAcceptMorePayments(loanLatestState.TotalTransacted))
+                    
+                    if (loan.ShouldAcceptMorePayments(loansWithPersonsInfo.LoanTotalReturned))
                     {
                         targets.AddRange(loansWithPersonsInfo
                             .Persons
@@ -52,6 +48,7 @@ namespace Portal.Bll.Services
                             {
                                 LoanId = loan.Id,
                                 PersonId = loanPerson.Id,
+                                UpdateDatetimeUtc = DateTime.UtcNow,
                                 Amount = _randomGenerator_.GenerateRandomPaymentAmount(loan.LoanTotalAmount)
                             }));
                     }
@@ -72,8 +69,7 @@ namespace Portal.Bll.Services
             }
         }
 
-
-        public async Task<IEnumerable<PaymentVm>> GetLatestPayments(Int32 pageIndex, Int32 pageSize)
+        public async Task<IEnumerable<PaymentVm>> GetLatestPaymentsAsync(Int32 pageIndex, Int32 pageSize)
         {
             try
             {
@@ -86,7 +82,7 @@ namespace Portal.Bll.Services
             }
             catch (Exception e)
             {
-                _logger_.LogError(e, $"Exception on {nameof(GetLatestPayments)}.");
+                _logger_.LogError(e, $"Exception on {nameof(GetLatestPaymentsAsync)}.");
                 return new List<PaymentVm>();
             }
         }
