@@ -45,13 +45,11 @@ public class BaseController : Controller
         return new Guid(aadId);
     }
 
-    public IActionResult HandleResult<T>(Result<T> result)
+    protected IActionResult HandleResult<T>(Result<T> result)
     {
         var resultHandled = result.Match<IActionResult>(
-            succ => Ok(result), exception =>
-            {
-                return BadRequest(new ExceptionDetails(exception));
-            });
+            succ => Ok(succ), 
+            exception => BadRequest(new ExceptionDetails(exception)));
         return resultHandled;
     }
 
