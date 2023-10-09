@@ -32,11 +32,11 @@ public class LoanService : ILoanService
         try
         {
             var loansWithPersonsResult = await _loanProvider_.GetAllLoansWithPersonsAsync();
-            var r1 = await loansWithPersonsResult.BindAsync(async loansWithPersons =>
+            var loansOverviewsResult2 = await loansWithPersonsResult.BindAsync(async loansWithPersons =>
             {
 
                 var loansLatestStatesResult = (await _transactionProvider_.GetAllLoansLatestStates());
-                var r2 = loansLatestStatesResult.Bind(loanLatestStates =>
+                var loanOverviewsResult = loansLatestStatesResult.Bind(loanLatestStates =>
                 {
                     var results = new List<LoanOverview>();
                     var latestStates = loanLatestStates.ToList();
@@ -52,9 +52,9 @@ public class LoanService : ILoanService
                     return new Result<IEnumerable<LoanOverview>>(results);
                 });
 
-                return r2;
+                return loanOverviewsResult;
             });
-            return r1;
+            return loansOverviewsResult2;
         }
         catch (Exception e)
         {
