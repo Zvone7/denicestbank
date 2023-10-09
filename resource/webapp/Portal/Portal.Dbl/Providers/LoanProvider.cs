@@ -50,8 +50,6 @@ public class LoanProvider : ILoanProvider
                 }
                 loansWithPersons.Add(new LoanWithPersons { LoanDto = loan, Persons = persons });
             }
-            throw new Exception("Intentional exception");
-
             return loansWithPersons;
         }
         catch (Exception e)
