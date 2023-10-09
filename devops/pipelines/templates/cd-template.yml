@@ -31,7 +31,7 @@ stages:
                 azureSubscription: ${{ variables.envDevOpsServiceConnection }}
                 ScriptType: 'InlineScript'
                 Inline: |
-                Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.connectionStringSecretName }})"
+                  Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.connectionStringSecretName }})"
                 azurePowerShellVersion: 'LatestVersion'
 
             - task: FileTransform@1

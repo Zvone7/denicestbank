@@ -10,7 +10,6 @@ trigger:
   branches:
     include:
       - develop
-      - feature/**
 pr: none
 
 pool:
