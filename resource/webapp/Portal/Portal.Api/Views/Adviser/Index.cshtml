@@ -19,8 +19,8 @@
                 contentType: "application/json",
                 success: function (response) {
                     console.log("get all loans - success")
+                    console.log(response);
                     if (response.length > 0) {
-                        console.log(response);
                         var loanDetailsHtml = "<table class='table'><thead><tr>" +
                             "<th>Loan #</th>" +
                             "<th>Purpose</th>" +

@@ -78,6 +78,7 @@
             contentType: "application/json",
             success: function (response) {
                 console.log("generatepayments - success")
+                alert("generated transactions - refresh to see");
             },
             error: function (xhr, status, error) {
                 console.log("fail request:", status, error, xhr.responseText)

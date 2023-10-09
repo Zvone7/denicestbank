@@ -43,8 +43,8 @@
                 contentType: "application/json",
                 success: function (response) {
                     console.log("get all loans by person id - success")
+                    console.log(response);
                     if (response.length > 0) {
-                        console.log(response);
                         var loanDetailsHtml = "<table class='table'>" +
                             "<thead>" +
                             "<tr>" +
