@@ -10,6 +10,7 @@ trigger:
   branches:
     include:
       - develop
+      - feature/**
 pr: none
 
 pool:
@@ -22,10 +23,3 @@ stages:
   parameters:
     environments: ${{ parameters.environments }}
     should_dependency_check: ${{ parameters.should_dependency_check }}
-
-- ${{ each env in parameters.environments }}:
-  - stage: Deploy
-    displayName: Deploy stage
-  - template: /devops/pipelines/templates/cd-template.yml
-    parameters:
-      env: ${{ env }}

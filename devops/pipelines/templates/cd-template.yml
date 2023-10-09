@@ -1,0 +1,52 @@
+parameters:
+- name: env
+
+stages:
+  - stage: Deploy
+    displayName: Deploy stage
+    dependsOn: Build
+    variables:
+      - template: ../../variables/vars.yml
+      - template: ../../variables/vars-${{ env }}.yml
+
+    jobs:
+    - deployment: Deploy
+        displayName: Deploy job
+        environment: env_${{ env }}
+        strategy:
+        runOnce:
+            deploy:
+            steps:
+
+                - task: AzureKeyVault@2
+                displayName: 'Fetch secrets from Key Vault'
+                inputs:
+                    azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+                    KeyVaultName: ${{ variables.keyVaultName }}
+                    SecretsFilter: '*'
+                    runAsPreJob: true
+
+                - task: AzurePowerShell@5
+                displayName: 'Update secret variables'
+                inputs:
+                    azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+                    ScriptType: 'InlineScript'
+                    Inline: |
+                    Write-Host "##vso[task.setvariable variable=DbConnectionString;issecret=true]$(${{ variables.connectionStringSecretName }})"
+                    azurePowerShellVersion: 'LatestVersion'
+
+                - task: FileTransform@1
+                displayName: 'Update appsettings.json environment properties'
+                inputs:
+                    folderPath: '$(Pipeline.Workspace)/app/*.zip'
+                    targetFiles: '**/appsettings.json'
+                    fileType: json
+
+                - task: AzureWebApp@1
+                displayName: 'Deploy Azure Web App'
+                inputs:
+                    azureSubscription: ${{ variables.envDevOpsServiceConnection }}
+                    appName: ${{ variables.webAppName }}
+                    appType: 'webApp'
+                    package: '$(Pipeline.Workspace)/app/*.zip'
+                    appSettings: '-ENVIRONMENT_NAME ${{ env }}'
