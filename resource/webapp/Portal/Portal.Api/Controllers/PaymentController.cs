@@ -8,12 +8,12 @@ namespace Portal.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PaymentBaseController : BaseController
+public class PaymentController : BaseController
 {
     private readonly IPersonService _personService_;
     private readonly ITransactionService _transactionService_;
 
-    public PaymentBaseController(
+    public PaymentController(
         IPersonService personService,
         ITransactionService transactionService,
         ILogger logger

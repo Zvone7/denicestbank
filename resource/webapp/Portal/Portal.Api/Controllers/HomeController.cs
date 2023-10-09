@@ -8,12 +8,12 @@ using Portal.Core.Services;
 namespace Portal.Api.Controllers;
 
 [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-public class HomeBaseController : BaseController
+public class HomeController : BaseController
 {
     private readonly ILogger _logger_;
     private readonly IPersonService _personService_;
 
-    public HomeBaseController(
+    public HomeController(
         IPersonService personService,
         ILogger logger
     ) : base(logger)

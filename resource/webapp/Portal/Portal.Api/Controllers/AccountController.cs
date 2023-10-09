@@ -19,6 +19,6 @@ public class AccountController : Controller
         HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         // Redirect to a sign-out confirmation page or the home page.
-        return RedirectToAction("Index", "HomeBase");
+        return RedirectToAction("Index", "Home");
     }
 }
