@@ -1,10 +1,13 @@
+using System.Data;
 using FluentAssertions;
+using LanguageExt.Common;
 using Moq;
 using Portal.Bll.Services;
 using Portal.Core.Generation;
 using Portal.Core.Providers;
 using Portal.Core.Services;
 using Portal.Models;
+using Test.Portal.Core.Extensions;
 
 namespace Test.Portal.Bll.Unit.Services;
 
@@ -23,7 +26,7 @@ public class PersonServiceTest
 
         var personService = new PersonService(personProviderMock.Object, null!, null!);
 
-        var result = await personService.GetPersonByIdAsync(personId);
+        var result = (await personService.GetPersonByIdAsync(personId)).GetValue();
 
         result.Should().NotBeNull();
         result?.Id.Should().Be(personId);
@@ -50,9 +53,10 @@ public class PersonServiceTest
 
         var personService = new PersonService(personProviderMock.Object, null!, loggerMock);
 
-        var result = await personService.TryCreatePersonAsync(personAadInfo);
+        var result = (await personService.TryCreatePersonAsync(personAadInfo)).GetValue();
 
-        result.Should().BeNull();
+        result.Should().NotBeNull();
+        result.Id.Should().Be(personId);
     }
     
     [Fact]
@@ -80,18 +84,18 @@ public class PersonServiceTest
         personProviderMock
             .Setup(x =>
                 x.GetPersonByIdAsync(It.IsAny<Guid>()))!
-            .ReturnsAsync(nonExistingPerson);
+            .ReturnsAsync(new Result<PersonDto>(new DataException("person not found")));
         personProviderMock
             .Setup(x =>
                 x.CreatePersonAsync(It.IsAny<PersonDto>()))
-            .ReturnsAsync(personDto);
+            .ReturnsAsync(new Result<PersonDto>(personDto));
         randomGeneratorMock.Setup(x =>
                 x.GenerateSsn())
             .Returns(ssnMocked);
 
         var personService = new PersonService(personProviderMock.Object, randomGeneratorMock.Object, loggerMock);
 
-        var result = await personService.TryCreatePersonAsync(personAadInfo);
+        var result = (await personService.TryCreatePersonAsync(personAadInfo)).GetValue();
 
         result.Should().NotBeNull();
         result?.Id.Should().Be(personId);

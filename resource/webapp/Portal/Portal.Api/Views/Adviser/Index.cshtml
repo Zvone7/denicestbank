@@ -73,7 +73,7 @@
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.log("fail request:", status, error)
+                    console.log("fail request:", status, error, xhr.responseText)
                 }
             });
         });
@@ -89,7 +89,7 @@
                     alert("Loan approved successfully - please refresh!");
                 },
                 error: function (xhr, status, error) {
-                    console.log("fail request:", status, error)
+                    console.log("fail request:", status, error, xhr.responseText)
                     console.log("Error approving loan. Please try again later.");
                 }
             });

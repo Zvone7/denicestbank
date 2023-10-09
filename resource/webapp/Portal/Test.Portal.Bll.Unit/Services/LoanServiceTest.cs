@@ -4,6 +4,7 @@ using Portal.Bll.Services;
 using Portal.Core.Providers;
 using Portal.Core.Services;
 using Portal.Models;
+using Test.Portal.Core.Extensions;
 
 namespace Test.Portal.Bll.Unit.Services;
 
@@ -50,7 +51,7 @@ public class LoanServiceTest
 
         var loanService = new LoanService(loanProvider.Object, personService.Object, transactionProvider.Object, null!);
 
-        var result = (await loanService.GetAllLoansOverviewAsync()).ToList();
+        var result = (await loanService.GetAllLoansOverviewAsync()).GetValue().ToList();
 
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
@@ -106,7 +107,7 @@ public class LoanServiceTest
 
         var loanService = new LoanService(loanProvider.Object, personService.Object, transactionProvider.Object, null!);
 
-        var result = (await loanService.GetAllLoansByPersonIdAsync(correctPersonId)).ToList();
+        var result = (await loanService.GetAllLoansByPersonIdAsync(correctPersonId)).GetValue().ToList();
 
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
@@ -147,7 +148,7 @@ public class LoanServiceTest
 
         var loanService = new LoanService(loanProvider.Object, personService.Object, transactionProvider.Object, null!);
 
-        var result = await loanService.ApproveLoanAsync(loanId);
+        var result = (await loanService.ApproveLoanAsync(loanId)).GetValue();
 
         result.Should().BeTrue();
     }
@@ -193,7 +194,7 @@ public class LoanServiceTest
 
         var loanService = new LoanService(loanProviderMock.Object, personServiceMock.Object, null!, null!);
         
-        var result = await loanService.ApplyForLoanAsync(loanApplication);
+        var result = (await loanService.ApplyForLoanAsync(loanApplication)).GetValue();
 
         result.Should().NotBeNull();
         result?.Id.Should().Be(mockDbGeneratedGuid);

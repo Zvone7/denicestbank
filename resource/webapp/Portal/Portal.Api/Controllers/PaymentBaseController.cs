@@ -8,12 +8,16 @@ namespace Portal.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PaymentController : Controller
+public class PaymentBaseController : BaseController
 {
     private readonly IPersonService _personService_;
     private readonly ITransactionService _transactionService_;
 
-    public PaymentController(IPersonService personService, ITransactionService transactionService)
+    public PaymentBaseController(
+        IPersonService personService,
+        ITransactionService transactionService,
+        ILogger logger
+    ) : base(logger)
     {
         _personService_ = personService;
         _transactionService_ = transactionService;
@@ -22,24 +26,24 @@ public class PaymentController : Controller
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Index()
     {
-        await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
+        await TryCreatePersonFromAadUser(_personService_, User);
         return View();
     }
 
     [HttpGet]
     [Route("payments")]
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-    public async Task<IEnumerable<PaymentVm>> GetPayments(int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> GetPayments(int pageIndex = 1, int pageSize = 10)
     {
-        return await _transactionService_.GetLatestPaymentsAsync(pageIndex, pageSize);
+        return HandleResult(await _transactionService_.GetLatestPaymentsAsync(pageIndex, pageSize));
     }
 
 
     [HttpPost]
     [Route("generate")]
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-    public async Task<IEnumerable<TransactDto>> GeneratePayments()
+    public async Task<IActionResult> GeneratePayments()
     {
-        return await _transactionService_.GenerateTransactionsAsync();
+        return HandleResult(await _transactionService_.GenerateTransactionsAsync());
     }
 }

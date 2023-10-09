@@ -65,7 +65,7 @@
                 }
             },
             error: function (xhr, status, error) {
-                console.log("fail request:", status, error)
+                console.log("fail request:", status, error, xhr.responseText)
             }
         });
     }
@@ -80,7 +80,7 @@
                 console.log("generatepayments - success")
             },
             error: function (xhr, status, error) {
-                console.log("fail request:", status, error)
+                console.log("fail request:", status, error, xhr.responseText)
             }
         });
     }

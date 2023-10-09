@@ -8,12 +8,15 @@ using Portal.Core.Services;
 namespace Portal.Api.Controllers;
 
 [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-public class HomeController : Controller
+public class HomeBaseController : BaseController
 {
-    private readonly ILogger<HomeController> _logger_;
+    private readonly ILogger _logger_;
     private readonly IPersonService _personService_;
 
-    public HomeController(ILogger<HomeController> logger, IPersonService personService)
+    public HomeBaseController(
+        IPersonService personService,
+        ILogger logger
+    ) : base(logger)
     {
         _logger_ = logger;
         _personService_ = personService;
@@ -21,7 +24,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
+        await TryCreatePersonFromAadUser(_personService_, User);
         return View();
     }
 

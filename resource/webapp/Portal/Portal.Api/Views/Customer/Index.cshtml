@@ -79,8 +79,8 @@
                         console.log("But no loans applied for yet :(")
                     }
                 },
-                error: function (xhr, status, error) {
-                    console.log("fail request:", status, error)
+                error: function (xhr, status, error, response) {
+                    console.log("fail request:", status, error, xhr.responseText)
                 }
             });
 
@@ -95,20 +95,17 @@
                     'Interest': interest,
                 };
                 console.log("making request", data)
-                // Send the loan data to the server via AJAX
                 $.ajax({
                     type: "POST",
                     url: "/api/loan",
                     data: JSON.stringify(data),
                     contentType: "application/json",
                     success: function (response) {
-                        // Handle the response from the server here
                         console.log("success!", response)
                         alert("Loan application submitted successfully - please refresh!");
                     },
-                    error: function (xhr, status, error) {
-                        // Handle any errors that occur during the AJAX request here
-                        console.log("fail request:", status, error)
+                    error: function (xhr, status, error, response) {
+                        console.log("fail request:", status, error, xhr.responseText)
                         alert("Error submitting loan application. Please try again later.");
                     }
                 });

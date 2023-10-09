@@ -1,3 +1,5 @@
+using LanguageExt;
+using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Portal.Core.Extensions;
 using Portal.Core.Generation;
@@ -13,13 +15,13 @@ namespace Portal.Bll.Services
         private readonly ITransactionProvider _transactionProvider_;
         private readonly ILoanService _loanService_;
         private readonly IRandomGenerator _randomGenerator_;
-        private readonly ILogger<ITransactionService> _logger_;
+        private readonly ILogger _logger_;
 
         public TransactionService(
             ITransactionProvider transactionProvider,
             ILoanService loanService,
             IRandomGenerator randomGenerator,
-            ILogger<ITransactionService> logger
+            ILogger logger
         )
         {
             _transactionProvider_ = transactionProvider;
@@ -28,62 +30,81 @@ namespace Portal.Bll.Services
             _logger_ = logger;
         }
 
-        public async Task<IEnumerable<TransactDto>> GenerateTransactionsAsync()
+        public async Task<Result<IEnumerable<TransactDto>>> GenerateTransactionsAsync()
         {
             try
             {
-                var loansWithPersonsInfos = await _loanService_.GetAllLoansOverviewAsync();
-                var targets = new List<TransactDto>();
-                foreach (var loansWithPersonsInfo in loansWithPersonsInfos)
-                {
-                    var loan = loansWithPersonsInfo.LoanDto;
-                    if (!loan.IsApproved) continue;
-                    if (loan.IsPastDue()) continue;
-                    
-                    if (loan.ShouldAcceptMorePayments(loansWithPersonsInfo.LoanTotalReturned))
-                    {
-                        targets.AddRange(loansWithPersonsInfo
-                            .Persons
-                            .Select(loanPerson => new TransactDto()
+                var loansWithPersonsInfosResult = await _loanService_.GetAllLoansOverviewAsync();
+                var allTransactionsInsertResult =
+                    await loansWithPersonsInfosResult.BindAsync<IEnumerable<LoanOverview>, IEnumerable<TransactDto>>(
+                        async loansWithPersonsInfos =>
+                        {
+                            var targets = new List<TransactDto>();
+                            foreach (var loansWithPersonsInfo in loansWithPersonsInfos)
                             {
-                                LoanId = loan.Id,
-                                PersonId = loanPerson.Id,
-                                UpdateDatetimeUtc = DateTime.UtcNow,
-                                Amount = _randomGenerator_.GenerateRandomPaymentAmount(loan.LoanTotalAmount)
-                            }));
-                    }
-                }
+                                var loan = loansWithPersonsInfo.LoanDto;
+                                if (!loan.IsApproved) continue;
+                                if (loan.IsPastDue()) continue;
 
-                var transactResults = new List<TransactDto>();
-                foreach (var transact in targets)
-                {
-                    transactResults.Add(await _transactionProvider_.InsertTransactionAsync(transact));
-                }
+                                if (loan.ShouldAcceptMorePayments(loansWithPersonsInfo.LoanTotalReturned))
+                                {
+                                    targets.AddRange(loansWithPersonsInfo
+                                        .Persons
+                                        .Select(loanPerson => new TransactDto()
+                                        {
+                                            LoanId = loan.Id,
+                                            PersonId = loanPerson.Id,
+                                            UpdateDatetimeUtc = DateTime.UtcNow,
+                                            Amount = _randomGenerator_.GenerateRandomPaymentAmount(loan.LoanTotalAmount)
+                                        }));
+                                }
+                            }
 
-                return transactResults;
+                            var transactResults = new List<TransactDto>();
+                            foreach (var transact in targets)
+                            {
+                                var transactionInsertResult = await _transactionProvider_.InsertTransactionAsync(transact);
+                                var transaction = transactionInsertResult.Match(
+                                    transactDto => transactDto,
+                                    fail =>
+                                    {
+                                        // explicitly swallow exception
+                                        _logger_.LogError(fail, "Exception inserting transaction.");
+                                        return null!;
+                                    });
+                                if (transaction != null) transactResults.Add(transaction);
+                            }
+
+                            return transactResults;
+                        });
+                return allTransactionsInsertResult;
             }
             catch (Exception e)
             {
                 _logger_.LogError(e, $"Exception on {nameof(GenerateTransactionsAsync)}: {e.Message}");
-                return new List<TransactDto>();
+                return new Result<IEnumerable<TransactDto>>();
             }
         }
 
-        public async Task<IEnumerable<PaymentVm>> GetLatestPaymentsAsync(Int32 pageIndex, Int32 pageSize)
+        public async Task<Result<List<PaymentVm>>> GetLatestPaymentsAsync(Int32 pageIndex, Int32 pageSize)
         {
             try
             {
-                var payments =
-                    (await _transactionProvider_.GetAllEnrinchedTransactions())
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Take(pageSize);
-
-                return payments;
+                var enrichedTransactionsResult = await _transactionProvider_.GetAllEnrichedTransactions();
+                var pageOfEnrichedTransactionsResult = enrichedTransactionsResult.Bind(_ =>
+                {
+                    return enrichedTransactionsResult.Match(x =>
+                        new Result<List<PaymentVm>>(x
+                            .Skip((pageIndex - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList()));
+                });
+                return pageOfEnrichedTransactionsResult;
             }
             catch (Exception e)
             {
                 _logger_.LogError(e, $"Exception on {nameof(GetLatestPaymentsAsync)}.");
-                return new List<PaymentVm>();
+                return new Result<List<PaymentVm>>(e);
             }
         }
     }
