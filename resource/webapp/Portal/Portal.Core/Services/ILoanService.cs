@@ -1,11 +1,12 @@
+using LanguageExt.Common;
 using Portal.Models;
 
 namespace Portal.Core.Services;
 
 public interface ILoanService
 {
-    Task<IEnumerable<LoanOverview>> GetAllLoansOverviewAsync();
-    Task<IEnumerable<LoanOverview>> GetAllLoansByPersonIdAsync(Guid personId);
-    Task<Boolean> ApproveLoanAsync(Guid loanId);
-    Task<LoanDto?> ApplyForLoanAsync(LoanApplication loanApplication);
+    Task<Result<IEnumerable<LoanOverview>>> GetAllLoansOverviewAsync();
+    Task<Result<IEnumerable<LoanOverview>>> GetAllLoansByPersonIdAsync(Guid personId);
+    Task<Result<Boolean>> ApproveLoanAsync(Guid loanId);
+    Task<Result<LoanDto>> ApplyForLoanAsync(LoanApplication loanApplication);
 }

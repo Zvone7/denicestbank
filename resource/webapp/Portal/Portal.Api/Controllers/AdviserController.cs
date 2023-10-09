@@ -8,18 +8,23 @@ namespace Portal.Api.Controllers;
 [ApiController]
 [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
-public class AdviserController : Controller
+public class AdviserController : BaseController
 {
     private readonly IPersonService _personService_;
+    private readonly ILogger _logger_;
 
-    public AdviserController(IPersonService personService)
+    public AdviserController(
+        IPersonService personService,
+        ILogger logger
+    ) : base(logger)
     {
         _personService_ = personService;
+        _logger_ = logger;
     }
 
     public async Task<IActionResult> Index()
     {
-        await ControllerHelper.TryCreatePersonFromAadUser(_personService_, User);
+        await TryCreatePersonFromAadUser(_personService_, User);
         return View();
     }
 }

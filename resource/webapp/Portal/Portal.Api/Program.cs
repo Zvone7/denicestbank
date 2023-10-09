@@ -34,9 +34,10 @@ if (String.IsNullOrWhiteSpace(connectionString))
 logger.LogInformation("*** Application started");
 
 builder.Services.AddSingleton<IRandomGenerator>(_ => new RandomGenerator());
-builder.Services.AddSingleton<IPersonProvider>(_ => new PersonProvider(connectionString));
-builder.Services.AddSingleton<ILoanProvider>(_ => new LoanProvider(connectionString));
-builder.Services.AddSingleton<ITransactionProvider>(_ => new TransactionProvider(connectionString));
+builder.Services.AddSingleton<ILogger>(logger);
+builder.Services.AddSingleton<IPersonProvider>(_ => new PersonProvider(connectionString, logger));
+builder.Services.AddSingleton<ILoanProvider>(_ => new LoanProvider(connectionString, logger));
+builder.Services.AddSingleton<ITransactionProvider>(_ => new TransactionProvider(connectionString, logger));
 
 builder.Services.AddSingleton<IPersonService, PersonService>();
 builder.Services.AddSingleton<ILoanService, LoanService>();

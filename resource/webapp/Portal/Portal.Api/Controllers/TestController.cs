@@ -2,13 +2,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Portal.Core.Providers;
 
 namespace Portal.Api.Controllers;
 
 [Route("api/[controller]")]
-public class TestController : Controller
+public class TestController : BaseController
 {
-    public TestController() {}
+    private readonly ILoanProvider _loanProvider_;
+    private readonly ILogger _logger_;
+    public TestController(
+        ILoanProvider loanProvider,
+        ILogger logger) : base(logger)
+    {
+        _loanProvider_ = loanProvider;
+        _logger_ = logger;
+    }
 
     [HttpGet]
     [Route("public")]
@@ -32,6 +41,14 @@ public class TestController : Controller
     [Route("app_auth")]
     public ActionResult<String> Test3()
     {
-        return "App auth works";
+        return Ok("App auth works");
+    }
+    
+    [HttpGet]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("app_auth2")]
+    public async Task<IActionResult> Test4()
+    {
+        return HandleResult(await _loanProvider_.GetAllLoansWithPersonsAsync());
     }
 }

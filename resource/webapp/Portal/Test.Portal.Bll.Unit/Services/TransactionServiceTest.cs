@@ -1,10 +1,12 @@
 using FluentAssertions;
+using LanguageExt.Common;
 using Moq;
 using Portal.Bll.Services;
 using Portal.Core.Generation;
 using Portal.Core.Providers;
 using Portal.Core.Services;
 using Portal.Models;
+using Test.Portal.Core.Extensions;
 
 namespace Test.Portal.Bll.Unit.Services;
 
@@ -49,7 +51,7 @@ public class TransactionServiceTest
             randomGeneratorMock.Object,
             null!);
 
-        var result = (await transactionService.GenerateTransactionsAsync()).ToList();
+        var result = (await transactionService.GenerateTransactionsAsync()).GetValue().ToList();
 
         if (shouldGenerateTransaction)
         {
@@ -76,8 +78,8 @@ public class TransactionServiceTest
     {
         var transactionProviderMock = new Mock<ITransactionProvider>();
         transactionProviderMock.Setup(x =>
-                x.GetAllEnrinchedTransactions())
-            .ReturnsAsync(GenerateMockPayments(availablePaymentCount));
+                x.GetAllEnrichedTransactions())
+            .ReturnsAsync(new Result<IEnumerable<PaymentVm>>(GenerateMockPayments(availablePaymentCount)));
 
         var transactionService = new TransactionService(
             transactionProviderMock.Object,
@@ -85,7 +87,7 @@ public class TransactionServiceTest
             null!,
             null!);
 
-        var result = (await transactionService.GetLatestPaymentsAsync(pageIndex, pageSize)).ToList();
+        var result = (await transactionService.GetLatestPaymentsAsync(pageIndex, pageSize)).GetValue().ToList();
 
         if (shouldHaveResult)
         {
