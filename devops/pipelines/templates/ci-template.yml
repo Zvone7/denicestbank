@@ -37,10 +37,10 @@ stages:
 
     - task: PublishTestResults@2
       condition: succeededOrFailed()
-      displayName: Publish Owasp Dependency Check Test Results
+      displayName: Publish Unit Test Results
       inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: '**/*-junit.xml'
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*-TestResults/*.trx'
         searchFolder: '$(Common.TestResultsDirectory)'
         testRunTitle: 'Dependency Check'
         buildConfiguration: 'Release'
