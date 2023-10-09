@@ -7,12 +7,12 @@ stages:
     dependsOn: Build
     variables:
       - template: ../../variables/vars.yml
-      - template: ../../variables/vars-${{ env }}.yml
+      - template: ../../variables/vars-${{ parameters.env }}.yml
 
     jobs:
     - deployment: Deploy
       displayName: Deploy job
-      environment: env_${{ env }}
+      environment: env_${{ parameters.env }}
       strategy:
         runOnce:
           deploy:
@@ -48,4 +48,4 @@ stages:
                 appName: ${{ variables.webAppName }}
                 appType: 'webApp'
                 package: '$(Pipeline.Workspace)/app/*.zip'
-                appSettings: '-ENVIRONMENT_NAME ${{ env }}'
+                appSettings: '-ENVIRONMENT_NAME ${{ parameters.env }}'
