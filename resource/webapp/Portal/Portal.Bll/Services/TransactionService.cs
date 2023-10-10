@@ -1,4 +1,3 @@
-using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using Portal.Core.Extensions;
@@ -15,13 +14,13 @@ namespace Portal.Bll.Services
         private readonly ITransactionProvider _transactionProvider_;
         private readonly ILoanService _loanService_;
         private readonly IRandomGenerator _randomGenerator_;
-        private readonly ILogger _logger_;
+        private readonly ILogger<ITransactionService> _logger_;
 
         public TransactionService(
             ITransactionProvider transactionProvider,
             ILoanService loanService,
             IRandomGenerator randomGenerator,
-            ILogger logger
+            ILogger<ITransactionService> logger
         )
         {
             _transactionProvider_ = transactionProvider;
@@ -72,7 +71,11 @@ namespace Portal.Bll.Services
                                         _logger_.LogError(fail, "Exception inserting transaction.");
                                         return null!;
                                     });
-                                if (transaction != null) transactResults.Add(transaction);
+                                if (transaction != null)
+                                {
+                                    _logger_.LogInformation($"Inserted transaction on loan {transact.LoanId} by person {transact.PersonId}");
+                                    transactResults.Add(transaction);
+                                }
                             }
 
                             return transactResults;

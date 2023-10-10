@@ -12,12 +12,12 @@ public class PersonService : IPersonService
 {
     private readonly IPersonProvider _personProvider_;
     private readonly IRandomGenerator _randomGenerator_;
-    private readonly ILogger _logger_;
+    private readonly ILogger<IPersonService> _logger_;
 
     public PersonService(
         IPersonProvider personProvider,
         IRandomGenerator randomGenerator,
-        ILogger logger
+        ILogger<IPersonService> logger
     )
     {
         _personProvider_ = personProvider ?? throw new ArgumentNullException(nameof(personProvider));

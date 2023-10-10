@@ -1,5 +1,4 @@
 using LanguageExt.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Portal.Core.Extensions;
 

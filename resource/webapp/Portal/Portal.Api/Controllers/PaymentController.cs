@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Core.Services;
-using Portal.Models;
 
 namespace Portal.Api.Controllers;
 
@@ -12,15 +11,17 @@ public class PaymentController : BaseController
 {
     private readonly IPersonService _personService_;
     private readonly ITransactionService _transactionService_;
+    private readonly ILogger<PaymentController> _logger_;
 
     public PaymentController(
         IPersonService personService,
         ITransactionService transactionService,
-        ILogger logger
+        ILogger<PaymentController> logger
     ) : base(logger)
     {
         _personService_ = personService;
         _transactionService_ = transactionService;
+        _logger_ = logger;
     }
 
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
@@ -33,7 +34,7 @@ public class PaymentController : BaseController
     [HttpGet]
     [Route("payments")]
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
-    public async Task<IActionResult> GetPayments(int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> GetPayments(Int32 pageIndex = 1, Int32 pageSize = 10)
     {
         return HandleResult(await _transactionService_.GetLatestPaymentsAsync(pageIndex, pageSize));
     }

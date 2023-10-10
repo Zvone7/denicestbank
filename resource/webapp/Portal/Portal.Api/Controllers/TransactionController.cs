@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Portal.Core.Providers;
 using Portal.Core.Services;
-using Portal.Models;
 
 namespace Portal.Api.Controllers;
 
@@ -13,11 +11,11 @@ namespace Portal.Api.Controllers;
 public class TransactionController : BaseController
 {
     private readonly ITransactionService _transactionService;
-    private readonly ILogger _logger_;
+    private readonly ILogger<TransactionController> _logger_;
 
     public TransactionController(
         ITransactionService transactionService,
-        ILogger logger
+        ILogger<TransactionController> logger
     ) : base(logger)
     {
         _transactionService = transactionService;

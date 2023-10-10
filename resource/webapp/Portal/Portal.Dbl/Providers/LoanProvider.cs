@@ -10,14 +10,14 @@ namespace Portal.Dbl.Providers;
 
 public class LoanProvider : ILoanProvider
 {
-    private readonly string _connectionString_;
-    private readonly ILogger _logger_;
+    private readonly String _connectionString_;
+    private readonly ILogger<ILoanProvider> _logger_;
 
     public LoanProvider(
-        String connectionString,
-        ILogger logger)
+        DbConfig dbConfig,
+        ILogger<ILoanProvider> logger)
     {
-        _connectionString_ = connectionString;
+        _connectionString_ = dbConfig.ConnectionString;
         _logger_ = logger;
     }
 

@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +12,11 @@ namespace Portal.Api.Controllers
     public class LoanController : BaseController
     {
         private readonly ILoanService _loanService_;
-        private readonly ILogger _logger_;
+        private readonly ILogger<LoanController> _logger_;
 
         public LoanController(
             ILoanService loanService,
-            ILogger logger
+            ILogger<LoanController> logger
         ) : base(logger)
         {
             _loanService_ = loanService ?? throw new ArgumentNullException(nameof(loanService));

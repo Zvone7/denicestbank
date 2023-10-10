@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using LanguageExt;
 using LanguageExt.Common;
 
 namespace Portal.Core.Extensions;
@@ -21,7 +20,7 @@ public static class ValidationExtensions
             var errors = new List<String>();
             validationResults.ForEach(vr => { errors.Add(vr.ErrorMessage!); });
             return new Result<TToValidate>(new ValidationException(
-                String.Join("\n", errors)));
+                string.Join("\n", errors)));
         }
 
         return new Result<TToValidate>(objectToValidate);

@@ -3,12 +3,12 @@ namespace Portal.Models;
 public class LoanDto
 {
     public Guid Id { get; set; }
-    public decimal LoanBaseAmount { get; set; }
+    public Decimal LoanBaseAmount { get; set; }
     public DateTime StartDatetimeUtc { get; set; }
     public Int32 DurationInDays { get; set; }
-    public decimal Interest { get; set; }
-    public decimal LoanTotalAmount { get; set; }
-    public bool IsApproved { get; set; }
+    public Decimal Interest { get; set; }
+    public Decimal LoanTotalAmount { get; set; }
+    public Boolean IsApproved { get; set; }
     public String Purpose { get; set; }
     public LoanDto()
     {
@@ -33,10 +33,10 @@ public class LoanDto
         Purpose = l.Purpose;
     }
 
-    private decimal CalculateLoanTotalAmount()
+    private Decimal CalculateLoanTotalAmount()
     {
         var totalAmount = LoanBaseAmount;
-        for (int i = 0; i < DurationInDays; i += 365)
+        for (Int32 i = 0; i < DurationInDays; i += 365)
         {
             var yearlyInterest = totalAmount * Interest;
             totalAmount += yearlyInterest;

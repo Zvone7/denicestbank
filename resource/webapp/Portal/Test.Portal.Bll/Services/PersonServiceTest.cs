@@ -29,7 +29,7 @@ public class PersonServiceTest
         var result = (await personService.GetPersonByIdAsync(personId)).GetValue();
 
         result.Should().NotBeNull();
-        result?.Id.Should().Be(personId);
+        result.Id.Should().Be(personId);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class PersonServiceTest
         };
         personProviderMock
             .Setup(x =>
-                x.GetPersonByIdAsync(It.IsAny<Guid>()))!
+                x.GetPersonByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(personDto);
 
         var personService = new PersonService(personProviderMock.Object, null!, loggerMock);
@@ -58,7 +58,7 @@ public class PersonServiceTest
         result.Should().NotBeNull();
         result.Id.Should().Be(personId);
     }
-    
+
     [Fact]
     public async Task Test_TryCreatePersonAsync_When_NewPerson()
     {
@@ -74,7 +74,6 @@ public class PersonServiceTest
             Role = roleMocked,
             Ssn = ssnMocked
         };
-        PersonDto? nonExistingPerson = null;
         var personAadInfo = new PersonAadInfo()
         {
             Id = personId,
@@ -83,7 +82,7 @@ public class PersonServiceTest
         };
         personProviderMock
             .Setup(x =>
-                x.GetPersonByIdAsync(It.IsAny<Guid>()))!
+                x.GetPersonByIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(new Result<PersonDto>(new DataException("person not found")));
         personProviderMock
             .Setup(x =>
@@ -98,8 +97,8 @@ public class PersonServiceTest
         var result = (await personService.TryCreatePersonAsync(personAadInfo)).GetValue();
 
         result.Should().NotBeNull();
-        result?.Id.Should().Be(personId);
-        result?.Role.Should().Be(roleMocked);
-        result?.Ssn.Should().Be(ssnMocked);
+        result.Id.Should().Be(personId);
+        result.Role.Should().Be(roleMocked);
+        result.Ssn.Should().Be(ssnMocked);
     }
 }

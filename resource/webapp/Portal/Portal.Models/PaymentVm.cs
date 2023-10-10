@@ -8,6 +8,6 @@ public class PaymentVm
     public Guid LoanId { get; set; }
     public String LoanPurpose { get; set; }
     public DateTime UpdateDatetimeUtc { get; set; }
-    public decimal Amount { get; set; }
+    public Decimal Amount { get; set; }
     
 }

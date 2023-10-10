@@ -3,15 +3,13 @@ using LanguageExt.Common;
 using Microsoft.AspNetCore.Mvc;
 using Portal.Core.Services;
 using Portal.Models;
-using LanguageExt.Common;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Portal.Api.Controllers;
 
 public class BaseController : Controller
 {
-    private readonly ILogger _logger_;
-    public BaseController(ILogger logger)
+    private readonly ILogger<BaseController> _logger_;
+    public BaseController(ILogger<BaseController> logger)
     {
         _logger_ = logger;
 

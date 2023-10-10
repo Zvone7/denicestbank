@@ -28,13 +28,13 @@ public class TestLogger<T> : ILogger<T>
     public void LogException(LogLevel logLevel, Exception? e, String mess)
     {
         var message = e != null ? e.Message : "exception";
-        message += String.IsNullOrWhiteSpace(mess) ? "" : mess;
+        message += string.IsNullOrWhiteSpace(mess) ? "" : mess;
         Console.WriteLine($"{logLevel}|{message}");
     }
 
     public void LogInformation(LogLevel logLevel, String mess)
     {
-        var message = String.IsNullOrWhiteSpace(mess) ? "" : mess;
+        var message = string.IsNullOrWhiteSpace(mess) ? "" : mess;
         Console.WriteLine($"{logLevel}|{message}");
     }
 

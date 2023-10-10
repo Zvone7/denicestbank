@@ -10,12 +10,12 @@ namespace Portal.Api.Controllers;
 [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
 public class HomeController : BaseController
 {
-    private readonly ILogger _logger_;
+    private readonly ILogger<HomeController> _logger_;
     private readonly IPersonService _personService_;
 
     public HomeController(
         IPersonService personService,
-        ILogger logger
+        ILogger<HomeController> logger
     ) : base(logger)
     {
         _logger_ = logger;
