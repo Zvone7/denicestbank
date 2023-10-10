@@ -1,0 +1,21 @@
+parameters:
+- name: environments
+  type: object
+  default: ['d']
+- name: should_dependency_check
+  type: boolean
+  default: false
+
+trigger: 
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+- template: /devops/pipelines/templates/ci-template.yml
+  parameters:
+    environments: ${{ parameters.environments }}
+    should_dependency_check: ${{ parameters.should_dependency_check }}

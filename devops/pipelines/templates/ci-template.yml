@@ -1,0 +1,82 @@
+parameters:
+- name: environments
+  type: object
+  default: ['d']
+- name: should_dependency_check
+  type: boolean
+  default: false
+
+stages:
+- stage: Build
+  displayName: Build stage
+  variables: 
+    - template: ../../variables/vars.yml
+  jobs:
+  - job: Build
+    displayName: Build job
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        displayName: 'Use .NET 7.0.x SDK'
+        packageType: 'sdk'
+        version: 7.x
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build'
+      inputs:
+        command: 'build'
+        projects: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/${{ variables.portalApiSolution }}.csproj'
+        arguments: "--configuration Release"
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Test'
+      inputs:
+        command: test
+        projects: 'resource/webapp/**/*.csproj'
+        arguments: '--configuration Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover'
+
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      displayName: Publish Unit Test Results
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
+        searchFolder: '$(Common.TestResultsDirectory)'
+        testRunTitle: 'Dependency Check'
+        buildConfiguration: 'Release'
+
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration Release --output $(build.artifactstagingdirectory)'
+        workingDirectory: $(Build.SourcesDirectory)/resource/webapp/Portal
+        zipAfterPublish: True
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish artifact to pipeline'
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'app'
+
+    - task: dependency-check-build-task@6
+      displayName: Execute Owasp Scan
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        projectName: 'resource/webapp/Portal/${{ variables.portalApiSolution }}/{{ variables.portalApiSolution }}.csproj'
+        scanPath: '$(Build.SourcesDirectory)/resource/webapp/Portal/**/bin/Release/net*/*.dll'
+        suppressionPath: '$(Build.SourcesDirectory)/owasp-dependency-suppression-file.xml'
+        failOnCVSS: 20 # limit for demo purposes
+        format: 'HTML, JSON, JUNIT'
+        enableExperimental: true
+
+    - task: PublishTestResults@2
+      displayName: Publish Owasp Dependency Check Test Results
+      condition: ${{parameters.should_dependency_check}}
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/*-junit.xml'
+        searchFolder: '$(Common.TestResultsDirectory)'
+        testRunTitle: 'Dependency Check'
+        buildConfiguration: 'Release'

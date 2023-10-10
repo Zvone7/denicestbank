@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Loans";
+}
+
+
+<div class="text-center">
+    <h1>Manage the loans:</h1>
+    
+
+    <div id="loanInfo" style="display:none;">
+        <div id="loanDetails"></div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/loan",
+                contentType: "application/json",
+                success: function (response) {
+                    console.log("get all loans - success")
+                    console.log(response);
+                    if (response.length > 0) {
+                        var loanDetailsHtml = "<table class='table'><thead><tr>" +
+                            "<th>Loan #</th>" +
+                            "<th>Purpose</th>" +
+                            "<th>Base Amount</th>" +
+                            "<th>Total Amount</th>" +
+                            "<th>Total Paid</th>" +
+                            "<th>Percent paid</th>" +
+                            "<th>Due UTC</th>" +
+                            "<th>Interest</th>" +
+                            "<th>Approved</th>" +
+                            "<th>Person(s)</th>" +
+                            "<th>Action</th>" +
+                            "</tr></thead><tbody>";
+                        for (var i = 0; i < response.length; i++) {
+                            var loan = response[i].loanDto;
+                            var loanTotalReturned = response[i].loanTotalReturned;
+                            var startDate = new Date(loan.startDatetimeUtc);
+                            var durationInDays = loan.durationInDays;
+                            var dueDate = new Date(startDate.getTime() + (durationInDays * 24 * 60 * 60 * 1000));
+                            var percentagePaidOff = ((loanTotalReturned / loan.loanTotalAmount) * 100).toFixed(2);
+                            loanDetailsHtml += "<tr>";
+                            loanDetailsHtml += "<td>" + (i + 1) + "</td>";
+                            loanDetailsHtml += "<td>" + loan.purpose + "</td>";
+                            loanDetailsHtml += "<td>" + loan.loanBaseAmount.toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
+                            loanDetailsHtml += "<td>" + (loan.loanTotalAmount).toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
+                            loanDetailsHtml += "<td>" + (loanTotalReturned).toLocaleString('no-NO', { style: 'currency', currency: 'NOK' }) + "</td>";
+                            loanDetailsHtml += "<td>" + percentagePaidOff + "%</td>";
+                            loanDetailsHtml += "<td>" + dueDate.toLocaleDateString('no-NO') + "</td>";
+                            loanDetailsHtml += "<td>" + (loan.interest * 100).toFixed(2) + "%</td>";
+                            loanDetailsHtml += "<td>" + (loan.isApproved ? "Yes" : "No") + "</td>";
+                            loanDetailsHtml += "<td>";
+                            for (var j = 0; j < response[i].persons.length; j++) {
+                                var person = response[i].persons[j];
+                                loanDetailsHtml += "<p>" + person.fullName + "</p>";
+                            }
+                            loanDetailsHtml += "</td>";
+                            loanDetailsHtml += "<td>";
+                            if (!loan.isApproved) {
+                                loanDetailsHtml += "<button class='btn btn-primary' onclick='approveLoan(\"" + loan.id + "\")'>Approve</button>";
+                            }
+                            loanDetailsHtml += "</td>";
+                            loanDetailsHtml += "</tr>";
+                        }
+                        loanDetailsHtml += "</tbody></table>";
+                        $("#loanDetails").html(loanDetailsHtml);
+                        $("#loanInfo").show();
+                    }
+                    else {
+                        console.log("But no loans applied for yet :(")
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("fail request:", status, error, xhr.responseText)
+                }
+            });
+        });
+
+        function approveLoan(loanId) {
+            console.log("attempting to approve loan ", loanId)
+            $.ajax({
+                type: "PUT",
+                url: "/api/loan/approveloan?loanId=" + loanId,
+                contentType: "application/json",
+                success: function (response) {
+                    console.log("approve loan - success")
+                    alert("Loan approved successfully - please refresh!");
+                },
+                error: function (xhr, status, error) {
+                    console.log("fail request:", status, error, xhr.responseText)
+                    console.log("Error approving loan. Please try again later.");
+                }
+            });
+        }
+    </script>
+</div>
