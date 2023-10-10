@@ -32,6 +32,13 @@ public static class ValidationExtensions
             return new Result<Boolean>(GetIsNotNullException<T>());
         return new Result<Boolean>(true);
     }
+    public static Result<Boolean> IsNotNull<T>(this Result<T> result)
+    {
+        var obj = result.Match(v => v, e => default(T));
+        if (obj == null)
+            return new Result<Boolean>(GetIsNotNullException<T>());
+        return new Result<Boolean>(true);
+    }
 
     public static DataException GetIsNotNullException<T>()
     {

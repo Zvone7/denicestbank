@@ -27,7 +27,7 @@ public class PaymentController : BaseController
     [Authorize(AuthenticationSchemes = OpenIdConnectDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Index()
     {
-        await TryCreatePersonFromAadUser(_personService_, User);
+        await TryCreatePersonFromAadUser(_personService_);
         return View();
     }
 

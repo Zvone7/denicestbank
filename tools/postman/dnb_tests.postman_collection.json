@@ -1,0 +1,303 @@
+{
+	"info": {
+		"_postman_id": "c040869c-8e50-44e5-b21e-adacb1a48edc",
+		"name": "dnb_tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21502904"
+	},
+	"item": [
+		{
+			"name": "1_auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"1.1. Verify auth is correct\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData=JSON.parse(responseBody)",
+							"postman.setEnvironmentVariable(\"access_token\", jsonData.access_token);",
+							"postman.setEnvironmentVariable(\"testUserId\", \"\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{transGenAppId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{transGenSecret2}}",
+							"type": "text"
+						},
+						{
+							"key": "resource",
+							"value": "{{portalAppId}}",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "resource",
+							"value": "api://{{portalAppId}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://login.microsoftonline.com/{{tenantId}}/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"login",
+						"microsoftonline",
+						"com"
+					],
+					"path": [
+						"{{tenantId}}",
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2_Create_Test_Person",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"2.1. Verify test person is created\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let response=pm.response.json();",
+							"console.log(response);",
+							"let createdObj = response;",
+							"",
+							"postman.setEnvironmentVariable(\"_testPersonId\", createdObj.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/person",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"person"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3_Apply_For_Loan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"3.1. Verify test loan is created\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let response=pm.response.json();",
+							"console.log(response);",
+							"let createdObj = response;",
+							"",
+							"postman.setEnvironmentVariable(\"_loanId\", createdObj.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"LoanBaseAmount\": 10000.00,\n    \"Interest\": 0.05,\n    \"Purpose\": \"IntegrationTest\",\n    \"Persons\": [\n        \"{{_testPersonId}}\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/loan/applyforloanalt",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"loan",
+						"applyforloanalt"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4_Approve_Loan",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"4.1. Verify test loan is approved\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/loan/approveloan?loanId={{_loanId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"loan",
+						"approveloan"
+					],
+					"query": [
+						{
+							"key": "loanId",
+							"value": "{{_loanId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5_Generate_Transaction",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"4.1. Verify transaction is created\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"PersonId\": \"{{_testPersonId}}\",\n  \"LoanId\": \"{{_loanId}}\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/transaction",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"transaction"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

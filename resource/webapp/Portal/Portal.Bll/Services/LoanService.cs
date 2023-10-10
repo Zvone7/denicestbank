@@ -27,6 +27,10 @@ public class LoanService : ILoanService
         _logger_ = logger;
     }
 
+    public Task<Result<LoanDto>> GetLoanById(Guid loanId)
+    {
+        return _loanProvider_.GetLoanById(loanId);
+    }
     public async Task<Result<IEnumerable<LoanOverview>>> GetAllLoansOverviewAsync()
     {
         try
@@ -96,7 +100,7 @@ public class LoanService : ILoanService
         }
     }
 
-    public async Task<Result<Boolean>> ApproveLoanAsync(Guid loanId)
+    public async Task<Result<Boolean>> ApproveLoanAsync(Guid loanId, Guid executorId)
     {
         try
         {
@@ -106,7 +110,7 @@ public class LoanService : ILoanService
                 var loanNotNullResult = loan.IsNotNull();
                 var setLoanApprovedResult = await loanNotNullResult.MatchAsync(async loanSucc =>
                 {
-                    var final = await _loanProvider_.SetLoanToApprovedAsync(loanId);
+                    var final = await _loanProvider_.SetLoanToApprovedAsync(loanId, executorId);
                     return final;
                 });
                 return setLoanApprovedResult;

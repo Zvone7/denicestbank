@@ -12,21 +12,20 @@ public class BaseController : Controller
     public BaseController(ILogger<BaseController> logger)
     {
         _logger_ = logger;
-
     }
+
     protected async Task<Result<PersonDto>> TryCreatePersonFromAadUser(
-        IPersonService personService,
-        ClaimsPrincipal user)
+        IPersonService personService)
     {
         try
         {
-            var aadId = ExtractAadId(user);
-            var email = user.Claims.Where(c => c.Type.Contains("identity/claims/name")).Select(c => c.Value).First();
+            var aadId = ExtractAadId(User);
+            var email = User.Claims.Where(c => c.Type.Contains("identity/claims/name")).Select(c => c.Value).First();
             var personAadInfo = new PersonAadInfo()
             {
                 Id = aadId,
                 Email = email,
-                FullName = user.Claims.Where(c => c.Type == "name").Select(c => c.Value).First()
+                FullName = User.Claims.Where(c => c.Type == "name").Select(c => c.Value).First()
             };
             return await personService.TryCreatePersonAsync(personAadInfo);
         }
@@ -39,14 +38,22 @@ public class BaseController : Controller
 
     protected static Guid ExtractAadId(ClaimsPrincipal user)
     {
-        var aadId = user.Claims.Where(c => c.Type.Contains("identity/claims/objectidentifier")).Select(c => c.Value).First();
-        return new Guid(aadId);
+        var appIdClaim = user.Claims
+            .FirstOrDefault(c => c.Type.Contains("appid"));
+        if (appIdClaim != null) return new Guid(appIdClaim.Value);
+        
+        var aadIdClaim = user.Claims
+            .FirstOrDefault(c => c.Type.Contains("identity/claims/objectidentifier"));
+        if (aadIdClaim != null) return new Guid(aadIdClaim.Value);
+        
+        
+        throw new Exception("Invalid authentication");
     }
 
     protected IActionResult HandleResult<T>(Result<T> result)
     {
         var resultHandled = result.Match<IActionResult>(
-            succ => Ok(succ), 
+            succ => Ok(succ),
             exception => BadRequest(new ExceptionDetails(exception)));
         return resultHandled;
     }

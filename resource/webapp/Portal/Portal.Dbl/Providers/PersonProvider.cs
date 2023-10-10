@@ -25,8 +25,8 @@ public class PersonProvider : IPersonProvider
         {
             using IDbConnection dbConnection = new SqlConnection(_connectionString_);
             dbConnection.Open();
-            return new Result<PersonDto>(await dbConnection.QueryFirstOrDefaultAsync<PersonDto>("SELECT * FROM Person WHERE Id = @Id", new { Id = personId }));
-
+            return new Result<PersonDto>(await dbConnection.QueryFirstOrDefaultAsync<PersonDto>("SELECT * FROM Person WHERE Id = @Id", 
+                new { Id = personId }));
         }
         catch (Exception e)
         {

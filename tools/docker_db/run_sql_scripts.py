@@ -14,6 +14,7 @@ cursor = conn.cursor()
 sql_files = [
     "/sql/Person.sql",
     "/sql/Loan.sql",
+    "/sql/LoanLog.sql",
     "/sql/PersonToLoan.sql",
     "/sql/Transact.sql"
 ]

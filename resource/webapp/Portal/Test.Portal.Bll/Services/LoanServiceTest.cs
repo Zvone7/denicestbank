@@ -124,6 +124,7 @@ public class LoanServiceTest
         var transactionProvider = new Mock<ITransactionProvider>();
 
         var loanId = Guid.NewGuid();
+        var adviserId = Guid.NewGuid();
         var personId = Guid.NewGuid();
         var loansWithPersons = new List<LoanWithPersons>
         {
@@ -144,11 +145,11 @@ public class LoanServiceTest
         };
 
         loanProvider.Setup(x => x.GetLoanWithPersonsByIdAsync(It.IsAny<Guid>())).ReturnsAsync(loansWithPersons[0]);
-        loanProvider.Setup(x => x.SetLoanToApprovedAsync(It.IsAny<Guid>())).ReturnsAsync(true);
+        loanProvider.Setup(x => x.SetLoanToApprovedAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(true);
 
         var loanService = new LoanService(loanProvider.Object, personService.Object, transactionProvider.Object, null!);
 
-        var result = (await loanService.ApproveLoanAsync(loanId)).GetValue();
+        var result = (await loanService.ApproveLoanAsync(loanId, adviserId)).GetValue();
 
         result.Should().BeTrue();
     }

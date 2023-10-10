@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using Dapper;
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
+using Portal.Core.Extensions;
 using Portal.Core.Providers;
 using Portal.Models;
 
@@ -21,6 +22,21 @@ public class LoanProvider : ILoanProvider
         _logger_ = logger;
     }
 
+    public async Task<Result<LoanDto>> GetLoanById(Guid loanId)
+    {
+        try
+        {
+            using IDbConnection dbConnection = new SqlConnection(_connectionString_);
+            dbConnection.Open();
+            return new Result<LoanDto>(await dbConnection.QueryFirstOrDefaultAsync<LoanDto>("SELECT * FROM Loan where Id=@LoanId",
+                new { LoanId = loanId }));
+        }
+        catch (Exception e)
+        {
+            _logger_.LogError(e, $"Exception on {nameof(GetAllLoansWithPersonsAsync)}");
+            return new Result<LoanDto>(e);
+        }
+    }
     public async Task<Result<List<LoanWithPersons>>> GetAllLoansWithPersonsAsync()
     {
         try
@@ -148,7 +164,7 @@ public class LoanProvider : ILoanProvider
                 loanDto,
                 transaction
             );
-            
+
             var createdLoan = await dbConnection.QueryFirstOrDefaultAsync<LoanDto>(
                 "SELECT TOP 1 * FROM Loan ORDER BY StartDatetimeUtc DESC",
                 transaction: transaction
@@ -175,18 +191,45 @@ public class LoanProvider : ILoanProvider
         }
     }
 
-    public async Task<Result<Boolean>> SetLoanToApprovedAsync(Guid loanId)
+    public async Task<Result<Boolean>> SetLoanToApprovedAsync(Guid loanId, Guid executorId)
     {
         try
         {
             using IDbConnection dbConnection = new SqlConnection(_connectionString_);
             dbConnection.Open();
-            await dbConnection.ExecuteAsync(
-                "UPDATE Loan SET IsApproved = 1 " +
-                "WHERE Id = @Id",
-                new { Id = loanId }
-            );
-            return true;
+            using var transaction = dbConnection.BeginTransaction();
+            try
+            {
+                await dbConnection.ExecuteAsync(
+                    "UPDATE Loan SET IsApproved = 1 " +
+                    "WHERE Id = @Id",
+                    new { Id = loanId },
+                    transaction
+                );
+
+                await dbConnection.ExecuteAsync(
+                    "INSERT INTO LoanLog (LoanId, CreatedBy, FieldName, NewFieldValue, CreatedDatetimeUtc) " +
+                    "VALUES (@LoanId, @CreatedBy, @FieldName, @NewFieldValue, @CreatedDatetimeUtc)",
+                    new
+                    {
+                        LoanId = loanId,
+                        CreatedBy = executorId,
+                        FieldName = "IsApproved",
+                        NewFieldValue = "True",
+                        CreatedDateTimeUtc = DateTime.UtcNow
+                    },
+                    transaction
+                );
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                _logger_.LogError(e, $"Exception on {nameof(SetLoanToApprovedAsync)}");
+                return new Result<Boolean>(e);
+            }
         }
         catch (Exception e)
         {

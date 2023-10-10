@@ -29,6 +29,34 @@ namespace Portal.Bll.Services
             _logger_ = logger;
         }
 
+        public async Task<Result<TransactDto>> GenerateTransactionAsync(Guid personId, Guid loanId, Guid executorId)
+        {
+            try
+            {
+                var loanResult = await _loanService_.GetLoanById(loanId);
+                var transactionCreateResult = await loanResult.MatchAsync(async loanDto =>
+                {
+                    var transact = new TransactDto()
+                    {
+                        Amount = _randomGenerator_.GenerateRandomPaymentAmount(loanDto.LoanTotalAmount),
+                        CreatedBy = executorId,
+                        CreatedDatetimeUtc = DateTime.UtcNow,
+                        LoanId = loanId,
+                        PersonId = personId
+                    };
+
+                    var transactionCreateResult2 = await _transactionProvider_.InsertTransactionAsync(transact);
+                    return transactionCreateResult2;
+                });
+                return transactionCreateResult;
+            }
+            catch (Exception e)
+            {
+                _logger_.LogError(e, $"Exception on {nameof(GenerateTransactionsAsync)}: {e.Message}");
+                return new Result<TransactDto>();
+            }
+        }
+
         public async Task<Result<IEnumerable<TransactDto>>> GenerateTransactionsAsync()
         {
             try
@@ -53,7 +81,7 @@ namespace Portal.Bll.Services
                                         {
                                             LoanId = loan.Id,
                                             PersonId = loanPerson.Id,
-                                            UpdateDatetimeUtc = DateTime.UtcNow,
+                                            CreatedDatetimeUtc = DateTime.UtcNow,
                                             Amount = _randomGenerator_.GenerateRandomPaymentAmount(loan.LoanTotalAmount)
                                         }));
                                 }
