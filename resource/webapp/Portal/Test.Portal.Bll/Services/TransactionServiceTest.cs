@@ -28,6 +28,7 @@ public class TransactionServiceTest
         var loanServiceMock = new Mock<ILoanService>();
         var randomGeneratorMock = new Mock<IRandomGenerator>();
         var transactionProviderMock = new Mock<ITransactionProvider>();
+        var logger = new TestLogger<ITransactionService>();
         var mockedTransactionAmount = 0.1m * loanTotalReturned;
         var loanOverviews = new List<LoanOverview>()
         {
@@ -49,7 +50,7 @@ public class TransactionServiceTest
             transactionProviderMock.Object,
             loanServiceMock.Object,
             randomGeneratorMock.Object,
-            null!);
+            logger);
 
         var result = (await transactionService.GenerateTransactionsAsync()).GetValue().ToList();
 
