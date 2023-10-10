@@ -1,0 +1,26 @@
+trigger: none
+pr: none
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: environments
+    type: object
+    default: ['d2']
+  - name: environment_file
+    type: string
+    default: dnb_tests.postman_environment
+  - name: test_file
+    type: string
+    default: dnb_tests.postman_collection
+
+variables:
+  - template: ../variables/vars.yml
+  - template: ../variables/vars-d.yml
+
+stages:
+  - template: /devops/pipelines/templates/postman-template.yml
+    parameters:
+      environments: ${{ parameters.environments }}
+      environment_file: ${{ parameters.environment_file }}
+      test_file: ${{ parameters.test_file }}
