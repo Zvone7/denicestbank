@@ -20,14 +20,15 @@ public class TransactionServiceTest
     public async Task Test_GenerateTransactionsAsync_Correct(
         String testCase,
         Boolean isApproved,
-        decimal loanTotalReturned,
-        decimal loanTotalAmount,
+        Decimal loanTotalReturned,
+        Decimal loanTotalAmount,
         Boolean isPastDue,
         Boolean shouldGenerateTransaction)
     {
         var loanServiceMock = new Mock<ILoanService>();
         var randomGeneratorMock = new Mock<IRandomGenerator>();
         var transactionProviderMock = new Mock<ITransactionProvider>();
+        var logger = new TestLogger<ITransactionService>();
         var mockedTransactionAmount = 0.1m * loanTotalReturned;
         var loanOverviews = new List<LoanOverview>()
         {
@@ -38,7 +39,7 @@ public class TransactionServiceTest
             .ReturnsAsync(loanOverviews);
         randomGeneratorMock.Setup(x =>
                 x.GenerateRandomPaymentAmount(
-                    It.IsAny<decimal>()))
+                    It.IsAny<Decimal>()))
             .Returns(mockedTransactionAmount);
 
         transactionProviderMock.Setup(x =>
@@ -49,7 +50,7 @@ public class TransactionServiceTest
             transactionProviderMock.Object,
             loanServiceMock.Object,
             randomGeneratorMock.Object,
-            null!);
+            logger);
 
         var result = (await transactionService.GenerateTransactionsAsync()).GetValue().ToList();
 
@@ -71,8 +72,8 @@ public class TransactionServiceTest
     [InlineData("B", 42, 10, 30, false)]
     public async Task Test_GetLatestPayments(
         String testCase,
-        int pageIndex,
-        int pageSize,
+        Int32 pageIndex,
+        Int32 pageSize,
         Int32 availablePaymentCount,
         Boolean shouldHaveResult)
     {
@@ -101,8 +102,8 @@ public class TransactionServiceTest
 
     private LoanOverview CreateLoanOverview(
         Boolean isApproved,
-        decimal loanTotalReturned,
-        decimal loanTotalAmount,
+        Decimal loanTotalReturned,
+        Decimal loanTotalAmount,
         Boolean isPastDue
     )
     {

@@ -10,10 +10,11 @@ namespace Portal.Api.Controllers;
 public class TestController : BaseController
 {
     private readonly ILoanProvider _loanProvider_;
-    private readonly ILogger _logger_;
+    private readonly ILogger<TestController> _logger_;
     public TestController(
         ILoanProvider loanProvider,
-        ILogger logger) : base(logger)
+        ILogger<TestController> logger
+    ) : base(logger)
     {
         _loanProvider_ = loanProvider;
         _logger_ = logger;
@@ -23,6 +24,7 @@ public class TestController : BaseController
     [Route("public")]
     public ActionResult<String> Test()
     {
+        _logger_.LogInformation("public test endpoint called");
         return "Unauthenticated works";
     }
 
@@ -43,12 +45,13 @@ public class TestController : BaseController
     {
         return Ok("App auth works");
     }
-    
+
     [HttpGet]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("app_auth2")]
     public async Task<IActionResult> Test4()
     {
+        // GetAllLoansOverviewAsync
         return HandleResult(await _loanProvider_.GetAllLoansWithPersonsAsync());
     }
 }

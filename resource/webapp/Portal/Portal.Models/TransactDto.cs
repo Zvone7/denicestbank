@@ -6,5 +6,5 @@ public class TransactDto
     public Guid PersonId { get; set; }
     public Guid LoanId { get; set; }
     public DateTime UpdateDatetimeUtc { get; set; }
-    public decimal Amount { get; set; }
+    public Decimal Amount { get; set; }
 }

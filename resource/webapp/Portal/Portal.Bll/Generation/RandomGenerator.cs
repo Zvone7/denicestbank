@@ -15,12 +15,12 @@ public class RandomGenerator : IRandomGenerator
         return $"{areaNumber:D3}-{groupNumber:D2}-{serialNumber:D4}";
     }
 
-    public decimal GenerateRandomPaymentAmount(decimal totalAmount)
+    public Decimal GenerateRandomPaymentAmount(Decimal totalAmount)
     {
-        decimal minPercentage = 0.0001m;
-        decimal maxPercentage = 0.0009m;
+        Decimal minPercentage = 0.0001m;
+        Decimal maxPercentage = 0.0009m;
 
-        var randomPercentage = (decimal)_random_.NextDouble() * (maxPercentage - minPercentage) + minPercentage;
+        var randomPercentage = (Decimal)_random_.NextDouble() * (maxPercentage - minPercentage) + minPercentage;
 
         return totalAmount * randomPercentage;
     }

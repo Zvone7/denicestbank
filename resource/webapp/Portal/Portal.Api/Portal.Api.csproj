@@ -27,10 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Logic\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Portal.Bll\Portal.Bll.csproj" />
     </ItemGroup>
 </Project>

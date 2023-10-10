@@ -11,13 +11,13 @@ namespace Portal.Dbl.Providers;
 public class TransactionProvider : ITransactionProvider
 {
     private readonly String _connectionString_;
-    private readonly ILogger _logger_;
+    private readonly ILogger<ITransactionProvider> _logger_;
 
     public TransactionProvider(
-        String connectionString,
-        ILogger logger)
+        DbConfig dbConfig,
+        ILogger<ITransactionProvider> logger)
     {
-        _connectionString_ = connectionString;
+        _connectionString_ = dbConfig.ConnectionString;
         _logger_ = logger;
     }
 

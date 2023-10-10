@@ -36,9 +36,9 @@ public class TestLoanExtensions
     [InlineData("C", 91, 100, 0.9, false)]
     public void Test_ShouldAcceptMorePayments(
         String testCase,
-        decimal totalReturned,
-        decimal totalAmount,
-        decimal paidOffLimitPercent,
+        Decimal totalReturned,
+        Decimal totalAmount,
+        Decimal paidOffLimitPercent,
         Boolean expectedShouldAcceptMorePayments
     )
     {

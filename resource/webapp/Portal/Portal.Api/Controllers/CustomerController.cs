@@ -11,11 +11,11 @@ namespace Portal.Api.Controllers;
 public class CustomerController : BaseController
 {
     private readonly IPersonService _personService_;
-    private readonly ILogger _logger_;
+    private readonly ILogger<CustomerController> _logger_;
 
     public CustomerController(
         IPersonService personService,
-        ILogger logger
+        ILogger<CustomerController> logger
     ) : base(logger)
     {
         _personService_ = personService;

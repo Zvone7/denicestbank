@@ -24,7 +24,7 @@ public class RandomGeneratorTest
     [InlineData(8000)]
     [InlineData(9000)]
     [InlineData(10000)]
-    public void TestRandomPaymentAmountIsGenerated(decimal totalAmount)
+    public void TestRandomPaymentAmountIsGenerated(Decimal totalAmount)
     {
         var rn = new RandomGenerator();
         var amount = rn.GenerateRandomPaymentAmount(totalAmount);

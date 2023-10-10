@@ -10,12 +10,12 @@ namespace Portal.Dbl.Providers;
 
 public class PersonProvider : IPersonProvider
 {
-    private readonly string _connectionString_;
-    private readonly ILogger _logger_;
+    private readonly String _connectionString_;
+    private readonly ILogger<IPersonProvider> _logger_;
 
-    public PersonProvider(string connectionString, ILogger logger)
+    public PersonProvider(DbConfig dbConfig, ILogger<IPersonProvider> logger)
     {
-        _connectionString_ = connectionString;
+        _connectionString_ = dbConfig.ConnectionString;
         _logger_ = logger;
     }
 

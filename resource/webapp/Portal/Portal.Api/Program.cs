@@ -8,6 +8,7 @@ using Portal.Core.Generation;
 using Portal.Core.Providers;
 using Portal.Core.Services;
 using Portal.Dbl.Providers;
+using Portal.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,27 +26,35 @@ builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, relo
 #endif
 var connectionString = builder.Configuration["ConnectionStrings:DbConnectionString"];
 
-if (String.IsNullOrWhiteSpace(connectionString))
+if (string.IsNullOrWhiteSpace(connectionString))
 {
     logger.LogError("ConnectionString to Database can't be empty");
     throw new ArgumentException("Missing value for DbConnectionString");
 }
+var dbConfig = new DbConfig(connectionString);
 
 logger.LogInformation("*** Application started");
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.AddApplicationInsights(
+    configureTelemetryConfiguration: (config) =>
+        config.ConnectionString = builder.Configuration.GetConnectionString("APPLICATIONINSIGHTS_CONNECTION_STRING"),
+    configureApplicationInsightsLoggerOptions: (options) => {}
+);
+
 builder.Services.AddSingleton<IRandomGenerator>(_ => new RandomGenerator());
-builder.Services.AddSingleton<ILogger>(logger);
-builder.Services.AddSingleton<IPersonProvider>(_ => new PersonProvider(connectionString, logger));
-builder.Services.AddSingleton<ILoanProvider>(_ => new LoanProvider(connectionString, logger));
-builder.Services.AddSingleton<ITransactionProvider>(_ => new TransactionProvider(connectionString, logger));
+builder.Services.AddSingleton(dbConfig);
+
+builder.Services.AddSingleton<IPersonProvider, PersonProvider>();
+builder.Services.AddSingleton<ILoanProvider, LoanProvider>();
+builder.Services.AddSingleton<ITransactionProvider, TransactionProvider>();
 
 builder.Services.AddSingleton<IPersonService, PersonService>();
 builder.Services.AddSingleton<ILoanService, LoanService>();
 builder.Services.AddSingleton<ITransactionService, TransactionService>();
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
 
 logger.LogInformation("*** DI initialized.");
 
@@ -134,7 +143,7 @@ namespace Portal.Api
     {
         public static void ThrowIfNullOrWhiteSpace(this String? propertyValue, String propertyName)
         {
-            if (String.IsNullOrWhiteSpace(propertyValue))
+            if (string.IsNullOrWhiteSpace(propertyValue))
                 throw new InvalidCredentialException($"Unable to retrieve mandatory fields for field {propertyName} - cannot be empty");
         }
     }
