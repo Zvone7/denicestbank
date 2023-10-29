@@ -6,15 +6,15 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v7.0": {
-      "denicestbanksqldb/1.0.0": {
+      "thebanksqldb/1.0.0": {
         "runtime": {
-          "denicestbanksqldb.dacpac": {}
+          "thebanksqldb.dacpac": {}
         }
       }
     }
   },
   "libraries": {
-    "denicestbanksqldb/1.0.0": {
+    "thebanksqldb/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

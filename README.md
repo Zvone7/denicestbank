@@ -1,4 +1,4 @@
-# denicestbank
+# thebank
 
 # Solution Description
 

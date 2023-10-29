@@ -106,7 +106,7 @@ stages:
                     DatabaseName: "${{ variables.sqldatabasename }}"
                     deployType: 'DacpacTask'
                     deploymentAction: 'Publish'
-                    DacpacFile: '$(Pipeline.Workspace)/sqldacpacartifact/denicestbank.dacpac'
+                    DacpacFile: '$(Pipeline.Workspace)/sqldacpacartifact/thebank.dacpac'
 
                 # - task: AzureKeyVault@2
                 #   inputs:
