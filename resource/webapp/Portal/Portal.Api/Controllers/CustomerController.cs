@@ -24,7 +24,7 @@ public class CustomerController : BaseController
 
     public async Task<IActionResult> Index()
     {
-        await TryCreatePersonFromAadUser(_personService_, User);
+        await TryCreatePersonFromAadUser(_personService_);
         return View();
     }
 }

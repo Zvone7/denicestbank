@@ -1,0 +1,141 @@
+parameters:
+  - name: environments
+    type: object
+    default: ["d2"]
+  - name: environment_file
+    type: string
+    default: dnb_tests.postman_environment
+  - name: test_file
+    type: string
+    default: dnb_tests.postman_environment
+
+stages:
+  - stage: runPostmanTests
+    displayName: 'Run postman tests'
+    ${{ each env in parameters.environments }}:
+      variables:
+        - template: ../../variables/vars.yml
+        - template: ../../variables/vars-${{ env }}.yml
+
+      jobs:
+        - job: build_artifact
+          displayName: 'Publish postman collections as artifact'
+          pool:
+            vmImage: windows-latest
+
+          steps:
+          - checkout: self
+          - task: PublishPipelineArtifact@1
+            inputs:
+              artifactName: 'drop'
+              targetPath: '$(Build.SourcesDirectory)/tools/postman/'
+            displayName: 'Publish git repo postman collections/environments as artifact'
+
+        - job: execute_tests
+          displayName: 'Execute Postman Tests using Newman'
+          pool:
+              name: 'ubuntu-latest'
+          dependsOn: build_artifact
+
+          steps:
+          - checkout: none
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download postman collection artifact'
+            inputs:
+              artifactName: 'drop'
+              path: '$(System.DefaultWorkingDirectory)'    # default is Pipeline.Workspace
+
+          - task: AzureKeyVault@2
+            inputs:
+              connectedServiceName: ${{ variables.envDevOpsServiceConnection }}
+              keyVaultName: ${{ variables.keyVaultName}}
+              secretsFilter: '*' # Downloads all secrets for the key vault
+              runAsPreJob: true # Runs before the job starts
+            displayName: 'Download key vault secrets'
+
+          - task: PowerShell@2
+            displayName: 'Install junit reporter'
+            inputs:
+                targetType: 'inline'
+                script: |
+                  npm install -g newman
+            continueOnError: true
+
+          - task: PowerShell@2
+            displayName: 'Run Postman Tests'
+            inputs:
+                targetType: 'inline'
+                script: |
+                  newman run collections/${{ parameters.test_file }}.json `
+                  -e environments/${{ parameters.environment_file }}.json `
+                  
+                  --env-var "baseUrl=https://${{ variables.webAppName}}.azurewebsites.net"
+                  --env-var "portalAppId=$(portal-appreg-id)" `
+                  --env-var "tenantId=$(azure-tenant-id)" `
+                  --env-var "transGenAppId=$(transgen-appreg-id)" `
+                  --env-var "transGenSecret2=$(transgen-secret)" `
+                  --reporters 'cli,junit' `
+                  --reporter-junit-export TestResults\junitReport-$(Build.BuildId).xml `
+                  --verbose
+            continueOnError: false
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish results'
+            inputs:
+              targetPath: $(System.DefaultWorkingDirectory)\TestResults\junitReport-$(Build.BuildId).xml
+              artifactName: TestResults
+
+        - job: publish_postman_test_result
+          displayName: 'Publish results as part of pipeline'
+          pool:
+              vmImage: windows-latest
+          dependsOn: execute_tests
+
+          steps:
+          - checkout: none
+
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download TestResults File'
+            inputs:
+              artifactName: 'TestResults'
+              path: '$(System.DefaultWorkingDirectory)'
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: 'junitReport-$(Build.BuildId).xml'
+              failTaskOnFailedTests: false
+  
+        - job: cleanup_postman_test_data
+          displayName: Cleanup Postman Test Data
+          pool:
+              name: ${{variables.EnvDevOpsAgentPool}}
+          dependsOn: publish_postman_test_result
+
+          steps:
+          - checkout: none
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                $keyVaultName = '${{ variables.keyVaultName }}'
+                $secretName = 'connection-string'
+                $secretValue = az keyvault secret show --name $secretName --vault-name $keyVaultName --query 'value' -o tsv
+                Write-Host "The value of the secret is $secretValue"
+                Write-Host "##vso[task.setvariable variable=connection-string]$secretValue"
+            displayName: 'Retrieve Secret from Azure Key Vault'
+
+
+          - task: SqlAzureDacpacDeployment@1
+            inputs:
+              azureSubscription: '${{ variables.envDevOpsServiceConnection }}'
+              AuthenticationType: 'servicePrincipal'
+              ServerName: '${{ variables.serverName }}.database.windows.net'
+              DatabaseName: '${{ variables.sqldatabasename }}'
+              deployType: 'InlineSqlTask'
+              SqlInline: EXEC [dbo].[CleanupIntegrationTestData]'
+              InlineAdditionalArguments: '-ConnectionTimeout 30'
+              IpDetectionMethod: 'AutoDetect'

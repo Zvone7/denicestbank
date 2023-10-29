@@ -47,9 +47,9 @@ public class TransactionProvider : ITransactionProvider
             using IDbConnection dbConnection = new SqlConnection(_connectionString_);
             dbConnection.Open();
             var query =
-                "INSERT INTO Transact (PersonId, LoanId, UpdateDatetimeUtc, Amount) " +
+                "INSERT INTO Transact (PersonId, LoanId, CreatedBy, CreatedDatetimeUtc, Amount) " +
                 "OUTPUT INSERTED.Id " +
-                "VALUES (@PersonId, @LoanId, @UpdateDatetimeUtc, @Amount)";
+                "VALUES (@PersonId, @LoanId, @CreatedBy, @CreatedDatetimeUtc, @Amount)";
             var id = await dbConnection.ExecuteScalarAsync<Guid>(query, transaction);
             transaction.Id = id;
             return transaction;
@@ -72,7 +72,8 @@ public class TransactionProvider : ITransactionProvider
                     t.Id,
                     t.PersonId,
                     t.LoanId,
-                    t.UpdateDatetimeUtc,
+                    t.CreatedBy,
+                    t.CreatedDatetimeUtc,
                     t.Amount,
                     l.Purpose as LoanPurpose,
                     p.FullName as PersonFullName
@@ -80,7 +81,7 @@ public class TransactionProvider : ITransactionProvider
                 Transact as t
                 inner join Loan as l on t.LoanId = l.Id
                 inner join Person as p on t.PersonId = p.Id
-                order by t.UpdateDatetimeUtc DESC";
+                order by t.CreatedDatetimeUtc DESC, t.PersonId";
 
             return new Result<IEnumerable<PaymentVm>>(await dbConnection.QueryAsync<PaymentVm>(query));
         }
